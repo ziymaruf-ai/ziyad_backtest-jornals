@@ -140,7 +140,7 @@
                 </div>
 
                 <div class="border-t border-slate-100 dark:border-gray-800 my-1 pt-2">
-                    <label class="block font-bold mb-1 text-sky-600 dark:text-cyan-400">Analysis Imagery (Up to 5 Photos - IndexedDB Saved)</label>
+                    <label class="block font-bold mb-1 text-sky-600 dark:text-cyan-400">Analysis Imagery (Up to 5 Photos)</label>
                     <div class="flex flex-col gap-1.5 mt-2 text-[11px]">
                         <div><span class="text-slate-400 dark:text-gray-500 font-medium">1. Daily/HTF Bias:</span> <input type="file" id="imgSetup1" accept="image/*" class="text-slate-500 dark:text-gray-400 text-[10px]"></div>
                         <div><span class="text-slate-400 dark:text-gray-500 font-medium">2. 4H/1H Structure:</span> <input type="file" id="imgSetup2" accept="image/*" class="text-slate-500 dark:text-gray-400 text-[10px]"></div>
@@ -259,30 +259,11 @@
         let backtestTrades = JSON.parse(localStorage.getItem('backtest_journal_trades')) || [];
         let eqChartInstance = null;
         let currentTheme = localStorage.getItem('journal_display_theme') || 'dark';
-        
-        // IndexedDB Initialization
-        let db = null;
-        const dbName = "ZiyadForexImagesDB";
-        const storeName = "trade_images";
-
-        const request = indexedDB.open(dbName, 1);
-        request.onupgradeneeded = function(e) {
-            let database = e.target.result;
-            if (!database.objectStoreNames.contains(storeName)) {
-                database.createObjectStore(storeName, { keyPath: "id" });
-            }
-        };
-        request.onsuccess = function(e) {
-            db = e.target.result;
-            updateDashboard(); // DB ዝግጁ ሲሆን ዳሽቦርዱን ለመጀመሪያ ጊዜ ያድሳል
-        };
-        request.onerror = function(e) {
-            console.error("IndexedDB initialization failed.");
-        };
 
         document.documentElement.className = currentTheme;
         window.addEventListener('DOMContentLoaded', () => {
             syncThemeInterfaceDetails(currentTheme);
+            updateDashboard();
         });
 
         function toggleDisplayTheme() {
@@ -323,34 +304,6 @@
             });
         }
 
-        // IndexedDB ውስጥ ምስሎችን ማስቀመጥ
-        function saveImagesToIndexedDB(tradeId, imagesArray) {
-            if (!db) return;
-            const transaction = db.transaction([storeName], "readwrite");
-            const store = transaction.objectStore(storeName);
-            store.put({ id: tradeId, images: imagesArray });
-        }
-
-        // IndexedDB ውስጥ ምስሎችን መፈለግ
-        function getImagesFromIndexedDB(tradeId) {
-            return new Promise((resolve) => {
-                if (!db) return resolve([]);
-                const transaction = db.transaction([storeName], "readonly");
-                const store = transaction.objectStore(storeName);
-                const request = store.get(tradeId);
-                request.onsuccess = () => resolve(request.result ? request.result.images : []);
-                request.onerror = () => resolve([]);
-            });
-        }
-
-        // IndexedDB ውስጥ ምስል ማጥፋት
-        function deleteImagesFromIndexedDB(tradeId) {
-            if (!db) return;
-            const transaction = db.transaction([storeName], "readwrite");
-            const store = transaction.objectStore(storeName);
-            store.delete(tradeId);
-        }
-
         async function saveTradeLog(e) {
             e.preventDefault();
             
@@ -364,15 +317,9 @@
             
             const b64Images = await Promise.all(imageFiles.map(file => fileToBase64(file)));
             const validImages = b64Images.filter(img => img !== "");
-            const tradeId = Date.now().toString();
-
-            // ፎቶዎቹን IndexedDB ውስጥ እናስቀምጣለን (localStorage ን ነፃ ለማድረግ)
-            if (validImages.length > 0) {
-                saveImagesToIndexedDB(tradeId, validImages);
-            }
 
             const newTrade = {
-                id: tradeId,
+                id: Date.now().toString(),
                 Date: document.getElementById('tradeDate').value,
                 Pair: document.getElementById('tradePair').value,
                 Type: document.getElementById('tradeType').value,
@@ -381,7 +328,7 @@
                 Risk: parseFloat(document.getElementById('tradeRisk').value) || 0,
                 RR: parseFloat(document.getElementById('tradeRR').value) || 0,
                 Session: getSessionByTime(document.getElementById('tradeDate').value),
-                hasImages: validImages.length > 0 // ፎቶ መኖሩን ማሳወቂያ ፍላግ
+                images: validImages
             };
 
             backtestTrades.push(newTrade);
@@ -394,12 +341,11 @@
             if(confirm("Remove this trade log entry?")) {
                 backtestTrades = backtestTrades.filter(t => t.id !== id);
                 localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
-                deleteImagesFromIndexedDB(id); // ፎቶውን ከ IndexedDB ላይም ያጠፋዋል
                 updateDashboard();
             }
         }
 
-        async function updateDashboard() {
+        function updateDashboard() {
             let totalNet = 0;
             let wins = 0, losses = 0, bes = 0;
             let totalWinAmount = 0, totalLossAmount = 0;
@@ -410,6 +356,7 @@
             let equityPoints = [startingBalance];
             let rollingBalance = startingBalance;
 
+            let tableHTML = "";
             let matrixData = {};
 
             const fPair = document.getElementById('filterPair').value;
@@ -417,7 +364,7 @@
             const fSession = document.getElementById('filterSession').value;
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
 
-            // 1. የፍለጋ እና የፊልተር ማጣሪያ
+            // 1. የፍለጋ እና የፊልተር ማጣሪያ (Combined Filter Logic)
             const filteredTrades = backtestTrades.filter(t => {
                 if (fPair !== "ALL" && t.Pair !== fPair) return false;
                 if (fOutcome !== "ALL" && t.Outcome !== fOutcome) return false;
@@ -432,7 +379,7 @@
                 return true;
             });
 
-            // 2. የተጣሩትን ትሬዶች ማስላት
+            // 2. የተጣሩትን ትሬዶች ማስላት (ለግራፍ እና ለስታትስቲክስ ሁልጊዜም ከቀድሞው ወደ አዲሱ ቅደም ተከተል መሆን አለበት)
             filteredTrades.forEach(t => {
                 const risk = parseFloat(t.Risk) || 0;
                 const rr = parseFloat(t.RR) || 0;
@@ -466,23 +413,24 @@
                 else { bes++; }
             });
 
-            // 3. ሰንጠረዡን ከአዲስ ወደ አሮጌ መደርደር
+            // 3. ዋናውን አደራደር ሳይቀይር ለሰንጠረዥ ማሳያ ብቻ ቀኑን ከአዲስ ወደ አሮጌ መደርደር (Descending Order)
             const sortedTradesForTable = [...filteredTrades].sort((a, b) => new Date(b.Date) - new Date(a.Date));
 
-            // 4. ሰንጠረዡን (Table) መገንባት
-            const tableBody = document.getElementById('tradeLogTable');
-            tableBody.innerHTML = "";
+            // 4. ሰንጠረዡን (Table) ከአዲስ ወደ አሮጌ በተደረደሩት ትሬዶች መገንባት
+            sortedTradesForTable.forEach(t => {
+                let imageGroupHTML = "";
+                if (t.images && t.images.length > 0) {
+                    t.images.forEach(imgBase64 => {
+                        imageGroupHTML += `<img src="${imgBase64}" class="preview-img" title="View Setup Diagram">`;
+                    });
+                } else {
+                    imageGroupHTML = `<span class="text-slate-400 dark:text-gray-600 italic text-[10px]">No charts saved</span>`;
+                }
 
-            if (sortedTradesForTable.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="11" class="text-center p-8 text-slate-400 dark:text-gray-500 italic">No backtest records found match current filters.</td></tr>`;
-            }
-
-            for (const t of sortedTradesForTable) {
                 const outcomeBadge = t.Outcome === "Win" ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : t.Outcome === "Loss" ? "text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20" : "text-slate-500 dark:text-gray-400 bg-slate-500/10 border border-slate-500/20";
                 
-                const tr = document.createElement('tr');
-                tr.className = "table-row transition";
-                tr.innerHTML = `
+                tableHTML += `
+                <tr class="table-row transition">
                     <td class="p-3 font-mono text-slate-500 dark:text-gray-400">${t.Date || '--'}</td>
                     <td class="p-3 font-bold text-slate-900 dark:text-white">${t.Pair}</td>
                     <td class="p-3 ${t.Type==='Buy'?'text-sky-600 dark:text-cyan-400':'text-amber-600 dark:text-amber-400'} font-bold">${t.Type.toUpperCase()}</td>
@@ -492,45 +440,23 @@
                     <td class="p-3 font-mono">${t.RR}x</td>
                     <td class="p-3 font-mono font-bold ${t.Net_Profit>0?'text-emerald-600 dark:text-emerald-400':t.Net_Profit<0?'text-rose-600 dark:text-rose-400':'text-slate-400'}">${t.Net_Profit >= 0 ? '+' : ''}$${t.Net_Profit}</td>
                     <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${outcomeBadge}">${t.Outcome.toUpperCase()}</span></td>
-                    <td class="p-3 text-center flex justify-center items-center h-12" id="img-container-${t.id}">
-                        <span class="text-slate-400 dark:text-gray-600 italic text-[10px]">Loading charts...</span>
-                    </td>
+                    <td class="p-3 text-center flex justify-center items-center h-12">${imageGroupHTML}</td>
                     <td class="p-3 text-center">
                         <button onclick="removeTradeRecord('${t.id}')" class="text-slate-400 hover:text-rose-500 dark:text-gray-500 dark:hover:text-rose-400 transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </td>
-                `;
-                tableBody.appendChild(tr);
+                </tr>`;
+            });
 
-                // በስተጀርባ (Asynchronously) ፎቶዎቹን ከ IndexedDB አውጥቶ ማሳየት
-                if (t.hasImages) {
-                    getImagesFromIndexedDB(t.id).then(images => {
-                        const container = document.getElementById(`img-container-${t.id}`);
-                        if (container) {
-                            if (images && images.length > 0) {
-                                let imgHTML = "";
-                                images.forEach(imgBase64 => {
-                                    imgHTML += `<img src="${imgBase64}" class="preview-img" title="View Setup Diagram">`;
-                                });
-                                container.innerHTML = imgHTML;
-                            } else {
-                                container.innerHTML = `<span class="text-slate-400 dark:text-gray-600 italic text-[10px]">No charts saved</span>`;
-                            }
-                        }
-                    });
-                } else {
-                    const container = document.getElementById(`img-container-${t.id}`);
-                    if (container) container.innerHTML = `<span class="text-slate-400 dark:text-gray-600 italic text-[10px]">No charts saved</span>`;
-                }
-            }
+            document.getElementById('tradeLogTable').innerHTML = tableHTML || `<tr><td colspan="11" class="text-center p-8 text-slate-400 dark:text-gray-500 italic">No backtest records found match current filters.</td></tr>`;
 
-            // 5. የአማካይ ስጋት ስሌት
+            // 5. የአማካይ ስጋት (Average Risk) ስሌት
             const avgRisk = filteredTrades.length > 0
                 ? (filteredTrades.reduce((sum, t) => sum + (parseFloat(t.Risk) || 0), 0) / filteredTrades.length).toFixed(2)
                 : "0.00";
             
             document.getElementById("avgRisk").innerText = "$" + avgRisk;
 
-            // 6. የ Maximum Drawdown ስሌት
+            // 6. አዲሱ የ Maximum Drawdown (ከፍተኛ ካፒታል መውረድ) ስሌት
             let peak = startingBalance;
             let maxDrawdown = 0;
 
@@ -545,6 +471,9 @@
             // 7. ሌሎች ስታቲስቲክሶችን ማሳየት
             const totalTrades = wins + losses + bes;
             const tradeWinRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(2) : "0.00";
+            const totalDaysTraded = Object.keys(dayMapData).length;
+            const winningDays = Object.values(dayMapData).filter(pnl => pnl > 0).length;
+            const dayWinRate = totalDaysTraded > 0 ? ((winningDays / totalDaysTraded) * 100).toFixed(2) : "0.00";
             const avgWin = wins > 0 ? totalWinAmount / wins : 0;
             const avgLoss = losses > 0 ? totalLossAmount / losses : 0;
             const avgRatio = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : avgWin > 0 ? avgWin.toFixed(2) : "0.00";
@@ -620,7 +549,6 @@
                 alert("No trades available to export.");
                 return;
             }
-            // ማሳሰቢያ፡ Export ሲደረግ ፎቶዎቹ በ IndexedDB ውስጥ ስላሉ JSON ፋይሉ ላይ አይካተቱም።
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backtestTrades));
             const dlAnchor = document.createElement('a');
             dlAnchor.setAttribute("href", dataStr); 
@@ -650,13 +578,9 @@
         }
 
         function clearWorkspace() {
-            if(confirm("Are you sure you want to completely clear your local workspace logs? This will also clear IndexedDB charts.")) { 
+            if(confirm("Are you sure you want to completely clear your local workspace logs? This cannot be undone.")) { 
                 backtestTrades = []; 
                 localStorage.removeItem('backtest_journal_trades'); 
-                if (db) {
-                    const transaction = db.transaction([storeName], "readwrite");
-                    transaction.objectStore(storeName).clear();
-                }
                 updateDashboard(); 
             }
         }
