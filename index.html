@@ -1,26 +1,37 @@
-function getSessionByTime(dateString) {
-    // ቀኑ ካልተሰጠ ወደ 'London' ይመልሳል
-    if (!dateString) return 'London';
-    
-    const date = new Date(dateString);
-    
-    // የገባው ቀን ትክክለኛ መሆኑን ማረጋገጫ
-    if (isNaN(date.getTime())) {
-        return 'Invalid Date'; 
-    }
-    
-    // በUTC የቀኑን ቁጥር ማውጣት
-    const day = date.getUTCDate(); 
-    
-    // ክፍለ-ጊዜዎቹን በሊስት (Array) ማስቀመጥ (0=New York, 1=London, 2=Asian)
-    const sessions = ['New York', 'London', 'Asian'];
-    
-    return sessions[day % 3];
-}
+<!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Session Tracker</title>
+</head>
+<body>
 
-// ለሙከራ (Testing)
-console.log(getSessionByTime("2026-06-03")); // New York
-console.log(getSessionByTime("2026-06-04")); // London
-console.log(getSessionByTime("2026-06-05")); // Asian
-console.log(getSessionByTime(""));           // London
-console.log(getSessionByTime("ስህተት ቀን")); // Invalid Date
+    <h2>Trading Session Tracker</h2>
+    <p>ውጤቱን ለማየት በብሮውዘርህ ላይ <strong>Console</strong> መክፈት አለብህ።</p>
+
+    <!-- ጃቫስክሪፕቱ እንዲሰራ እዚህ ውስጥ መሆን አለበት -->
+    <script>
+        function getSessionByTime(dateString) { 
+            if (!dateString) return 'London'; 
+            
+            const date = new Date(dateString); 
+            if (isNaN(date.getTime())) { 
+                return 'Invalid Date'; 
+            } 
+            
+            const day = date.getUTCDate(); 
+            const sessions = ['New York', 'London', 'Asian']; 
+            return sessions[day % 3]; 
+        } 
+
+        // ውጤቶቹን በኮንሶል (Console) ላይ ማተሚያ
+        console.log("2026-06-03 ->", getSessionByTime("2026-06-03")); 
+        console.log("2026-06-04 ->", getSessionByTime("2026-06-04")); 
+        console.log("2026-06-05 ->", getSessionByTime("2026-06-05")); 
+        console.log("ባዶ ሲሆን ->", getSessionByTime(""));          
+        console.log("ስህተት ሲሆን ->", getSessionByTime("የተሳሳተ ቀን")); 
+    </script>
+
+</body>
+</html>
