@@ -1,81 +1,665 @@
 <!DOCTYPE html>
-<html lang="am">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Session Tracker</title>
+    <title>Ziyad Forex Trading Journal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 500px;
-            margin: 50px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h2 { color: #333; }
-        .result-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #eef2f7;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #0056b3;
-        }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        /* Dark Variables */
+        .dark body { background-color: #0d0e12; color: #c5c6c7; }
+        .dark .main-card { background-color: #16171d; border: 1px solid #20222b; }
+        .dark .input-field { background-color: #0d0e12; border: 1px solid #45a29e; color: #ffffff; }
+        .dark .input-field:focus { border-color: #66fcf1; }
+        .dark .preview-img { border: 1px solid #2d313f; }
+        .dark .table-hdr { background-color: rgba(15, 23, 42, 0.8); color: #94a3b8; }
+        .dark .table-row:hover { background-color: rgba(32, 34, 43, 0.5); }
+        .dark .table-border { border-color: rgba(32, 34, 43, 0.6); }
+
+        /* Light Variables */
+        .light body { background-color: #f4f6f9; color: #333333; }
+        .light .main-card { background-color: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .light .input-field { background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; }
+        .light .input-field:focus { border-color: #0ea5e9; outline: none; }
+        .light .preview-img { border: 1px solid #cbd5e1; }
+        .light .table-hdr { background-color: #f8fafc; color: #475569; }
+        .light .table-row:hover { background-color: #f1f5f9; }
+        .light .table-border { border-color: #e2e8f0; }
+
+        .preview-img { transition: transform 0.2s; max-height: 44px; max-width: 65px; object-fit: cover; border-radius: 4px; cursor: pointer; display: inline-block; margin-right: 4px; }
+        .preview-img:hover { transform: scale(4); z-index: 50; position: relative; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); border-color: #0ea5e9; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-<div class="container">
-    <h2>Trading Session Tracker</h2>
-    <p>ውጤቱን በኮንሶል (Console) ላይ ማየት ትችላለህ። በተጨማሪም በገጹ ላይ ለማየት ከታች ያለውን ውጤት ተመልከት፡</p>
-    
-    <div class="result-box" id="display-result">
-        እየጫነ ነው...
+    <header class="mb-8 border-b border-slate-200 dark:border-gray-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-sky-500 dark:text-cyan-400"></i> ZIYAD FOREX TRADING JOURNAL
+            </h1>
+            <p class="text-xs text-sky-600 dark:text-cyan-400 font-mono mt-1">System Workspace // Backtesting & Analytics Engine</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="toggleDisplayTheme()" class="bg-amber-500 dark:bg-indigo-600 text-slate-900 dark:text-white text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
+                <i id="themeIcon" class="fa-solid fa-sun"></i> <span id="themeText">Light Mode</span>
+            </button>
+            <button onclick="exportJSONData()" class="bg-slate-200 hover:bg-slate-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-white text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-download"></i> Export Backup
+            </button>
+            <label class="bg-sky-600 hover:bg-sky-500 text-white dark:text-black text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 cursor-pointer transition">
+                <i class="fa-solid fa-upload"></i> Import Backup <input type="file" id="importFile" accept=".json" onchange="importJSONData(event)" class="hidden">
+            </label>
+            <button onclick="clearWorkspace()" class="bg-rose-600/20 hover:bg-rose-600/30 dark:bg-rose-900/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-trash-can"></i> Clear Journal
+            </button>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">Net P&L</span>
+            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500 dark:text-emerald-400">$0.00</div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">Trade Win %</span>
+            <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white">0.00%</div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">Average Risk</span>
+            <div id="avgRisk" class="text-xl md:text-2xl font-black mt-2 text-rose-500 dark:text-rose-400">$0.00</div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">Max Drawdown</span>
+            <div id="statDrawdown" class="text-xl md:text-2xl font-black mt-2 text-amber-500 dark:text-amber-400">0.00%</div>
+        </div>
+        <div class="main-card p-4 rounded-xl">
+            <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-400 tracking-wider">Avg W/L Ratio</span>
+            <div id="statAvgRatio" class="text-xl md:text-2xl font-black mt-2 text-sky-500 dark:text-cyan-400">0.00</div>
+            <div class="w-full bg-slate-200 dark:bg-rose-900/40 h-1 rounded-full mt-2 overflow-hidden flex">
+                <div id="barWinRatio" class="bg-emerald-500 h-full transition-all duration-500" style="width: 50%"></div>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    // 1. የተስተካከለው እና UTC የሚጠቀመው ዋናው ፈንክሽን
-    function getSessionByTime(dateString) { 
-        // ቀን ካልገባ ወደ 'London' ይመለሳል
-        if (!dateString) return 'London'; 
-        
-        const date = new Date(dateString); 
-        
-        // ቀኑ ትክክለኛ መሆኑን ማረጋገጫ (Invalid Date ካልሆነ)
-        if (isNaN(date.getTime())) { 
-            return 'Invalid Date'; 
-        } 
-        
-        // በሁሉም ሀገር አንድ አይነት ውጤት እንዲሰጥ UTC ቀን መውሰጃ
-        const day = date.getUTCDate(); 
-        
-        // Array በመጠቀም ሎጂኩን ማቅለል
-        const sessions = ['New York', 'London', 'Asian']; 
-        return sessions[day % 3]; 
-    } 
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div class="main-card p-5 rounded-lg flex flex-col gap-4">
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-gray-800 pb-2">
+                <i class="fa-solid fa-pen-to-square text-sky-500 dark:text-cyan-400"></i> Log Simulation Trade
+            </h2>
+            <form id="tradeForm" onsubmit="saveTradeLog(event)" class="flex flex-col gap-3 text-xs">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500 dark:text-gray-400">Execution Date</label>
+                        <input type="date" id="tradeDate" class="w-full p-2 rounded input-field" required>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500 dark:text-gray-400">Asset/Pair</label>
+                        <select id="tradePair" class="w-full p-2 rounded input-field">
+                            <option value="EUR/USD">EUR/USD</option>
+                            <option value="XAU/USD">XAU/USD (Gold)</option>
+                            <option value="GBP/USD">GBP/USD</option>
+                        </select>
+                    </div>
+                </div>
 
-    // 2. ለሙከራ (Testing) ወደ Console ማተሚያ
-    console.log("2026-06-03 ->", getSessionByTime("2026-06-03")); // New York (ቀን 3)
-    console.log("2026-06-04 ->", getSessionByTime("2026-06-04")); // London (ቀን 4)
-    console.log("2026-06-05 ->", getSessionByTime("2026-06-05")); // Asian (ቀን 5)
-    console.log("ባዶ ሲሆን ->", getSessionByTime(""));             // London
-    console.log("ስህተት ሲሆን ->", getSessionByTime("የተሳሳተ ቀን")); // Invalid Date
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500 dark:text-gray-400">Type</label>
+                        <select id="tradeType" class="w-full p-2 rounded input-field">
+                            <option value="Buy">BUY</option>
+                            <option value="Sell">SELL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500 dark:text-gray-400">Strategy</label>
+                        <input type="text" id="tradeStrategy" placeholder="SMC/ICT" class="w-full p-2 rounded input-field" required>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500 dark:text-gray-400">Outcome</label>
+                        <select id="tradeOutcome" class="w-full p-2 rounded input-field">
+                            <option value="Win">WIN</option>
+                            <option value="Loss">LOSS</option>
+                            <option value="BE">BREAK-EVEN</option>
+                        </select>
+                    </div>
+                </div>
 
-    // 3. ውጤቱን በስክሪኑ (UI) ላይ ለማሳየት (ለምሳሌ የዛሬውን ቀን ይወስዳል)
-    const today = new Date().toISOString().split('T')[0]; // የዛሬውን ቀን በ YYYY-MM-DD ፎርማት መውሰጃ
-    const currentSession = getSessionByTime(today);
-    
-    document.getElementById('display-result').innerText = `የዛሬው ቀን (${today}) ሴሽን፡ ${currentSession}`;
-</script>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500 dark:text-gray-400">Risked Amount ($)</label>
+                        <input type="number" step="0.01" id="tradeRisk" placeholder="e.g. 100" class="w-full p-2 rounded input-field" required>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500 dark:text-gray-400">Risk-to-Reward (R:R)</label>
+                        <input type="number" step="0.1" id="tradeRR" placeholder="e.g. 3.0" class="w-full p-2 rounded input-field" required>
+                    </div>
+                </div>
 
+                <div class="border-t border-slate-100 dark:border-gray-800 my-1 pt-2">
+                    <label class="block font-bold mb-1 text-sky-600 dark:text-cyan-400">Analysis Imagery (Up to 5 Photos - IndexedDB Saved)</label>
+                    <div class="flex flex-col gap-1.5 mt-2 text-[11px]">
+                        <div><span class="text-slate-400 dark:text-gray-500 font-medium">1. Daily/HTF Bias:</span> <input type="file" id="imgSetup1" accept="image/*" class="text-slate-500 dark:text-gray-400 text-[10px]"></div>
+                        <div><span class="text-slate-400 dark:text-gray-500 font-medium">2. 4H/1H Structure:</span> <input type="file" id="imgSetup2" accept="image/*" class="text-slate-500 dark:text-gray-400 text-[10px]"></div>
+                        <div><span class="text-slate-400 dark:text-gray-500 font-medium">3. 15m/5m POI:</span> <input type="file" id="imgSetup3" accept="image/*" class="text-slate-500 dark:text-gray-400 text-[10px]"></div>
+                        <div><span class="text-slate-400 dark:text-gray-500 font-medium">4. 1m Entry Setup:</span> <input type="file" id="imgSetup4" accept="image/*" class="text-slate-500 dark:text-gray-400 text-[10px]"></div>
+                        <div><span class="text-slate-400 dark:text-gray-500 font-medium">5. Final Outcome:</span> <input type="file" id="imgSetup5" accept="image/*" class="text-slate-500 dark:text-gray-400 text-[10px]"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-sky-500 to-emerald-500 dark:from-cyan-500 dark:to-teal-500 text-white dark:text-black font-black uppercase tracking-wider py-2.5 rounded transition shadow-lg cursor-pointer">
+                    Commit To Journal Matrix
+                </button>
+            </form>
+        </div>
+
+        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="main-card p-4 rounded-lg flex flex-col justify-between">
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-area text-sky-500 dark:text-cyan-400"></i> Equity Curve Growth</span>
+                <div class="h-48 flex items-center justify-center"><canvas id="equityChart"></canvas></div>
+            </div>
+            <div class="main-card p-4 rounded-lg flex flex-col justify-between">
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-pie text-sky-500 dark:text-cyan-400"></i> Sessions Layout Dashboard</span>
+                <div class="grid grid-cols-3 text-center gap-2 mt-4">
+                    <div class="p-2 rounded bg-amber-500/10 border border-amber-500/20"><div class="text-[10px] font-bold text-amber-500 uppercase">Asian</div><div id="asianLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
+                    <div class="p-2 rounded bg-blue-500/10 border border-blue-500/20"><div class="text-[10px] font-bold text-blue-500 uppercase">London</div><div id="londonLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
+                    <div class="p-2 rounded bg-purple-500/10 border border-purple-500/20"><div class="text-[10px] font-bold text-purple-500 uppercase">New York</div><div id="nyLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-card p-4 rounded-lg mb-8">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-800 pb-2 mb-3">
+            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-table-cells text-sky-500 dark:text-cyan-400"></i> Yearly / Monthly Performance Matrix
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-center text-[11px] min-w-[800px] border-separate border-spacing-1">
+                <thead>
+                    <tr class="text-slate-400 dark:text-gray-500 font-bold uppercase">
+                        <th class="p-1.5 text-left">Year</th>
+                        <th class="p-1.5">Jan</th><th class="p-1.5">Feb</th><th class="p-1.5">Mar</th>
+                        <th class="p-1.5">Apr</th><th class="p-1.5">May</th><th class="p-1.5">Jun</th>
+                        <th class="p-1.5">Jul</th><th class="p-1.5">Aug</th><th class="p-1.5">Sep</th>
+                        <th class="p-1.5">Oct</th><th class="p-1.5">Nov</th><th class="p-1.5">Dec</th>
+                        <th class="p-1.5 bg-slate-100 dark:bg-gray-800/60 rounded text-slate-800 dark:text-white font-bold">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="matrixTableBody" class="font-medium text-slate-700 dark:text-gray-300"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="main-card rounded-lg overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/40">
+            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-database text-sky-500 dark:text-cyan-400"></i> Simulation History Records Log
+            </h3>
+        </div>
+
+        <div class="p-3 bg-slate-100/50 dark:bg-gray-900/25 border-b border-slate-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div class="flex flex-wrap gap-3">
+                <div class="flex items-center gap-1.5">
+                    <label class="font-bold text-slate-400 dark:text-gray-500">Pair Filter:</label>
+                    <select id="filterPair" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
+                        <option value="ALL">All Pairs</option>
+                        <option value="EUR/USD">EUR/USD</option>
+                        <option value="XAU/USD">XAU/USD</option>
+                        <option value="GBP/USD">GBP/USD</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <label class="font-bold text-slate-400 dark:text-gray-500">Outcome:</label>
+                    <select id="filterOutcome" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
+                        <option value="ALL">All Outcomes</option>
+                        <option value="Win">WIN</option>
+                        <option value="Loss">LOSS</option>
+                        <option value="BE">BREAK-EVEN</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <label class="font-bold text-slate-400 dark:text-gray-500">Session:</label>
+                    <select id="filterSession" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
+                        <option value="ALL">All Sessions</option>
+                        <option value="Asian">Asian</option>
+                        <option value="London">London</option>
+                        <option value="New York">New York</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="w-full md:w-64 flex items-center relative">
+                <span class="absolute left-2.5 text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="searchInput" oninput="updateDashboard()" placeholder="Search strategy or keyword..." class="w-full pl-8 pr-2 py-1.5 rounded input-field bg-white dark:bg-slate-900 text-xs">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="table-hdr font-bold border-b border-slate-200 dark:border-gray-800 uppercase text-[10px] tracking-wider">
+                        <th class="p-3">Date</th><th class="p-3">Pair</th><th class="p-3">Type</th>
+                        <th class="p-3">Session</th><th class="p-3">Strategy</th><th class="p-3">Risk ($)</th>
+                        <th class="p-3">R:R</th><th class="p-3">Net P&L ($)</th><th class="p-3">Outcome</th>
+                        <th class="p-3 text-center">Charts Layout (Hover to Zoom)</th><th class="p-3 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeLogTable" class="divide-y table-border text-slate-700 dark:text-gray-300 font-medium"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const startingBalance = 10000;
+        let backtestTrades = JSON.parse(localStorage.getItem('backtest_journal_trades')) || [];
+        let eqChartInstance = null;
+        let currentTheme = localStorage.getItem('journal_display_theme') || 'dark';
+        
+        // IndexedDB Initialization
+        let db = null;
+        const dbName = "ZiyadForexImagesDB";
+        const storeName = "trade_images";
+
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = function(e) {
+            let database = e.target.result;
+            if (!database.objectStoreNames.contains(storeName)) {
+                database.createObjectStore(storeName, { keyPath: "id" });
+            }
+        };
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            updateDashboard(); // DB ዝግጁ ሲሆን ዳሽቦርዱን ለመጀመሪያ ጊዜ ያድሳል
+        };
+        request.onerror = function(e) {
+            console.error("IndexedDB initialization failed.");
+        };
+
+        document.documentElement.className = currentTheme;
+        window.addEventListener('DOMContentLoaded', () => {
+            syncThemeInterfaceDetails(currentTheme);
+        });
+
+        function toggleDisplayTheme() {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            document.documentElement.className = currentTheme;
+            localStorage.setItem('journal_display_theme', currentTheme);
+            syncThemeInterfaceDetails(currentTheme);
+            updateDashboard();
+        }
+
+        function syncThemeInterfaceDetails(theme) {
+            const icon = document.getElementById('themeIcon');
+            const txt = document.getElementById('themeText');
+            if(theme === 'dark') {
+                icon.className = "fa-solid fa-sun";
+                txt.innerText = "Light Mode";
+            } else {
+                icon.className = "fa-solid fa-moon";
+                txt.innerText = "Dark Mode";
+            }
+        }
+
+        function getSessionByTime(dateString) {
+            if(!dateString) return 'London';
+            const day = new Date(dateString).getDate();
+            if (day % 3 === 0) return 'New York';
+            if (day % 3 === 1) return 'London';
+            return 'Asian';
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve) => {
+                if(!file) return resolve("");
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => resolve("");
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // IndexedDB ውስጥ ምስሎችን ማስቀመጥ
+        function saveImagesToIndexedDB(tradeId, imagesArray) {
+            if (!db) return;
+            const transaction = db.transaction([storeName], "readwrite");
+            const store = transaction.objectStore(storeName);
+            store.put({ id: tradeId, images: imagesArray });
+        }
+
+        // IndexedDB ውስጥ ምስሎችን መፈለግ
+        function getImagesFromIndexedDB(tradeId) {
+            return new Promise((resolve) => {
+                if (!db) return resolve([]);
+                const transaction = db.transaction([storeName], "readonly");
+                const store = transaction.objectStore(storeName);
+                const request = store.get(tradeId);
+                request.onsuccess = () => resolve(request.result ? request.result.images : []);
+                request.onerror = () => resolve([]);
+            });
+        }
+
+        // IndexedDB ውስጥ ምስል ማጥፋት
+        function deleteImagesFromIndexedDB(tradeId) {
+            if (!db) return;
+            const transaction = db.transaction([storeName], "readwrite");
+            const store = transaction.objectStore(storeName);
+            store.delete(tradeId);
+        }
+
+        async function saveTradeLog(e) {
+            e.preventDefault();
+            
+            const imageFiles = [
+                document.getElementById('imgSetup1').files[0],
+                document.getElementById('imgSetup2').files[0],
+                document.getElementById('imgSetup3').files[0],
+                document.getElementById('imgSetup4').files[0],
+                document.getElementById('imgSetup5').files[0]
+            ];
+            
+            const b64Images = await Promise.all(imageFiles.map(file => fileToBase64(file)));
+            const validImages = b64Images.filter(img => img !== "");
+            const tradeId = Date.now().toString();
+
+            // ፎቶዎቹን IndexedDB ውስጥ እናስቀምጣለን (localStorage ን ነፃ ለማድረግ)
+            if (validImages.length > 0) {
+                saveImagesToIndexedDB(tradeId, validImages);
+            }
+
+            const newTrade = {
+                id: tradeId,
+                Date: document.getElementById('tradeDate').value,
+                Pair: document.getElementById('tradePair').value,
+                Type: document.getElementById('tradeType').value,
+                Strategy: document.getElementById('tradeStrategy').value,
+                Outcome: document.getElementById('tradeOutcome').value,
+                Risk: parseFloat(document.getElementById('tradeRisk').value) || 0,
+                RR: parseFloat(document.getElementById('tradeRR').value) || 0,
+                Session: getSessionByTime(document.getElementById('tradeDate').value),
+                hasImages: validImages.length > 0 // ፎቶ መኖሩን ማሳወቂያ ፍላግ
+            };
+
+            backtestTrades.push(newTrade);
+            localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
+            document.getElementById('tradeForm').reset();
+            updateDashboard();
+        }
+
+        function removeTradeRecord(id) {
+            if(confirm("Remove this trade log entry?")) {
+                backtestTrades = backtestTrades.filter(t => t.id !== id);
+                localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
+                deleteImagesFromIndexedDB(id); // ፎቶውን ከ IndexedDB ላይም ያጠፋዋል
+                updateDashboard();
+            }
+        }
+
+        async function updateDashboard() {
+            let totalNet = 0;
+            let wins = 0, losses = 0, bes = 0;
+            let totalWinAmount = 0, totalLossAmount = 0;
+
+            let dayMapData = {};
+            let sessionCounts = { 'Asian': 0, 'London': 0, 'New York': 0 };
+            let lineLabels = ["Start"];
+            let equityPoints = [startingBalance];
+            let rollingBalance = startingBalance;
+
+            let matrixData = {};
+
+            const fPair = document.getElementById('filterPair').value;
+            const fOutcome = document.getElementById('filterOutcome').value;
+            const fSession = document.getElementById('filterSession').value;
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            // 1. የፍለጋ እና የፊልተር ማጣሪያ
+            const filteredTrades = backtestTrades.filter(t => {
+                if (fPair !== "ALL" && t.Pair !== fPair) return false;
+                if (fOutcome !== "ALL" && t.Outcome !== fOutcome) return false;
+                if (fSession !== "ALL" && t.Session !== fSession) return false;
+                
+                if (keyword !== "") {
+                    const pairMatch = t.Pair?.toLowerCase().includes(keyword);
+                    const strategyMatch = t.Strategy?.toLowerCase().includes(keyword);
+                    const outcomeMatch = t.Outcome?.toLowerCase().includes(keyword);
+                    if (!pairMatch && !strategyMatch && !outcomeMatch) return false;
+                }
+                return true;
+            });
+
+            // 2. የተጣሩትን ትሬዶች ማስላት
+            filteredTrades.forEach(t => {
+                const risk = parseFloat(t.Risk) || 0;
+                const rr = parseFloat(t.RR) || 0;
+                
+                if (t.Outcome === "Win") t.Net_Profit = parseFloat((risk * rr).toFixed(2));
+                else if (t.Outcome === "Loss") t.Net_Profit = parseFloat((-risk).toFixed(2));
+                else t.Net_Profit = 0;
+
+                totalNet += t.Net_Profit;
+                rollingBalance += t.Net_Profit;
+
+                equityPoints.push(parseFloat(rollingBalance.toFixed(2)));
+                lineLabels.push(t.Pair);
+
+                sessionCounts[t.Session] = (sessionCounts[t.Session] || 0) + 1;
+
+                if (t.Date) {
+                    const dateParts = t.Date.split('-'); 
+                    const tYear = dateParts[0];
+                    const tMonth = parseInt(dateParts[1]) - 1; 
+                    if (!matrixData[tYear]) {
+                        matrixData[tYear] = Array(12).fill(null).map(() => ({ pnl: 0, count: 0 }));
+                    }
+                    matrixData[tYear][tMonth].pnl += t.Net_Profit;
+                    matrixData[tYear][tMonth].count += 1;
+                    dayMapData[t.Date] = (dayMapData[t.Date] || 0) + t.Net_Profit;
+                }
+
+                if (t.Outcome === "Win") { wins++; totalWinAmount += t.Net_Profit; }
+                else if (t.Outcome === "Loss") { losses++; totalLossAmount += Math.abs(t.Net_Profit); }
+                else { bes++; }
+            });
+
+            // 3. ሰንጠረዡን ከአዲስ ወደ አሮጌ መደርደር
+            const sortedTradesForTable = [...filteredTrades].sort((a, b) => new Date(b.Date) - new Date(a.Date));
+
+            // 4. ሰንጠረዡን (Table) መገንባት
+            const tableBody = document.getElementById('tradeLogTable');
+            tableBody.innerHTML = "";
+
+            if (sortedTradesForTable.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="11" class="text-center p-8 text-slate-400 dark:text-gray-500 italic">No backtest records found match current filters.</td></tr>`;
+            }
+
+            for (const t of sortedTradesForTable) {
+                const outcomeBadge = t.Outcome === "Win" ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : t.Outcome === "Loss" ? "text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20" : "text-slate-500 dark:text-gray-400 bg-slate-500/10 border border-slate-500/20";
+                
+                const tr = document.createElement('tr');
+                tr.className = "table-row transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono text-slate-500 dark:text-gray-400">${t.Date || '--'}</td>
+                    <td class="p-3 font-bold text-slate-900 dark:text-white">${t.Pair}</td>
+                    <td class="p-3 ${t.Type==='Buy'?'text-sky-600 dark:text-cyan-400':'text-amber-600 dark:text-amber-400'} font-bold">${t.Type.toUpperCase()}</td>
+                    <td class="p-3 text-slate-500 dark:text-gray-400">${t.Session}</td>
+                    <td class="p-3"><span class="bg-slate-100 dark:bg-gray-800 px-2 py-0.5 rounded text-slate-700 dark:text-gray-300">${t.Strategy}</span></td>
+                    <td class="p-3 font-mono">$${t.Risk}</td>
+                    <td class="p-3 font-mono">${t.RR}x</td>
+                    <td class="p-3 font-mono font-bold ${t.Net_Profit>0?'text-emerald-600 dark:text-emerald-400':t.Net_Profit<0?'text-rose-600 dark:text-rose-400':'text-slate-400'}">${t.Net_Profit >= 0 ? '+' : ''}$${t.Net_Profit}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${outcomeBadge}">${t.Outcome.toUpperCase()}</span></td>
+                    <td class="p-3 text-center flex justify-center items-center h-12" id="img-container-${t.id}">
+                        <span class="text-slate-400 dark:text-gray-600 italic text-[10px]">Loading charts...</span>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="removeTradeRecord('${t.id}')" class="text-slate-400 hover:text-rose-500 dark:text-gray-500 dark:hover:text-rose-400 transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+
+                // በስተጀርባ (Asynchronously) ፎቶዎቹን ከ IndexedDB አውጥቶ ማሳየት
+                if (t.hasImages) {
+                    getImagesFromIndexedDB(t.id).then(images => {
+                        const container = document.getElementById(`img-container-${t.id}`);
+                        if (container) {
+                            if (images && images.length > 0) {
+                                let imgHTML = "";
+                                images.forEach(imgBase64 => {
+                                    imgHTML += `<img src="${imgBase64}" class="preview-img" title="View Setup Diagram">`;
+                                });
+                                container.innerHTML = imgHTML;
+                            } else {
+                                container.innerHTML = `<span class="text-slate-400 dark:text-gray-600 italic text-[10px]">No charts saved</span>`;
+                            }
+                        }
+                    });
+                } else {
+                    const container = document.getElementById(`img-container-${t.id}`);
+                    if (container) container.innerHTML = `<span class="text-slate-400 dark:text-gray-600 italic text-[10px]">No charts saved</span>`;
+                }
+            }
+
+            // 5. የአማካይ ስጋት ስሌት
+            const avgRisk = filteredTrades.length > 0
+                ? (filteredTrades.reduce((sum, t) => sum + (parseFloat(t.Risk) || 0), 0) / filteredTrades.length).toFixed(2)
+                : "0.00";
+            
+            document.getElementById("avgRisk").innerText = "$" + avgRisk;
+
+            // 6. የ Maximum Drawdown ስሌት
+            let peak = startingBalance;
+            let maxDrawdown = 0;
+
+            equityPoints.forEach(balance => {
+                if(balance > peak) peak = balance;
+                const dd = peak > 0 ? ((peak - balance) / peak) * 100 : 0;
+                if(dd > maxDrawdown) maxDrawdown = dd;
+            });
+
+            document.getElementById('statDrawdown').innerText = maxDrawdown.toFixed(2) + "%";
+
+            // 7. ሌሎች ስታቲስቲክሶችን ማሳየት
+            const totalTrades = wins + losses + bes;
+            const tradeWinRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(2) : "0.00";
+            const avgWin = wins > 0 ? totalWinAmount / wins : 0;
+            const avgLoss = losses > 0 ? totalLossAmount / losses : 0;
+            const avgRatio = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : avgWin > 0 ? avgWin.toFixed(2) : "0.00";
+
+            document.getElementById('statNetPL').innerText = `${totalNet >= 0 ? '+' : ''}$${totalNet.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('statNetPL').className = `text-xl md:text-2xl font-black mt-2 ${totalNet >= 0 ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`;
+            document.getElementById('statWinRate').innerText = `${tradeWinRate}%`;
+            document.getElementById('statAvgRatio').innerText = avgRatio;
+
+            const percentageBar = Math.min(Math.max((parseFloat(avgRatio) / 10) * 100, 15), 90);
+            document.getElementById('barWinRatio').style.width = `${percentageBar}%`;
+
+            document.getElementById('asianLabel').innerText = sessionCounts['Asian'];
+            document.getElementById('londonLabel').innerText = sessionCounts['London'];
+            document.getElementById('nyLabel').innerText = sessionCounts['New York'];
+
+            let matrixHTML = "";
+            const sortedYears = Object.keys(matrixData).sort((a, b) => b - a);
+            sortedYears.forEach(yr => {
+                let yrTotal = 0;
+                matrixHTML += `<tr style="height: 42px;"><td class="p-1 text-left font-bold text-slate-800 dark:text-white bg-slate-100 dark:bg-gray-900/50 rounded">${yr}</td>`;
+                for (let m = 0; m < 12; m++) {
+                    const cell = matrixData[yr][m];
+                    if (cell && cell.count > 0) {
+                        yrTotal += cell.pnl;
+                        const isProfit = cell.pnl >= 0;
+                        matrixHTML += `<td class="p-1 rounded ${isProfit ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400':'bg-rose-500/10 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400'}"><div class="font-bold">${isProfit ? '+' : ''}$${Math.round(cell.pnl)}</div></td>`;
+                    } else {
+                        matrixHTML += `<td class="p-1 rounded bg-slate-100/50 dark:bg-gray-900/20 text-slate-300 dark:text-gray-600">--</td>`;
+                    }
+                }
+                matrixHTML += `<td class="p-1 rounded font-bold ${yrTotal>=0?'text-emerald-600 bg-emerald-500/5 dark:text-emerald-400 dark:bg-emerald-500/10':'text-rose-600 bg-rose-500/5 dark:text-rose-400 dark:bg-rose-500/10'}"><div>${yrTotal>=0?'+':''}$${Math.round(yrTotal)}</div></td></tr>`;
+            });
+            document.getElementById('matrixTableBody').innerHTML = matrixHTML || `<tr><td colspan="14" class="p-4 text-slate-400 dark:text-gray-500 italic">No matrix database loaded.</td></tr>`;
+
+            renderCharts(lineLabels, equityPoints);
+        }
+
+        function renderCharts(lineLabels, equityPoints) {
+            if (eqChartInstance) eqChartInstance.destroy();
+            const ctxEq = document.getElementById('equityChart').getContext('2d');
+            const gridColor = (currentTheme === 'dark') ? '#1f222e' : '#e2e8f0';
+            const labelColor = (currentTheme === 'dark') ? '#94a3b8' : '#475569';
+
+            eqChartInstance = new Chart(ctxEq, {
+                type: 'line',
+                data: {
+                    labels: lineLabels,
+                    datasets: [{
+                        data: equityPoints,
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        backgroundColor: (currentTheme === 'dark') ? 'rgba(16, 185, 129, 0.04)' : 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: 2
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        x: { grid: { color: gridColor }, ticks: { color: labelColor } }, 
+                        y: { grid: { color: gridColor }, ticks: { color: labelColor } } 
+                    } 
+                }
+            });
+        }
+
+        function exportJSONData() {
+            if (backtestTrades.length === 0) {
+                alert("No trades available to export.");
+                return;
+            }
+            // ማሳሰቢያ፡ Export ሲደረግ ፎቶዎቹ በ IndexedDB ውስጥ ስላሉ JSON ፋይሉ ላይ አይካተቱም።
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backtestTrades));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr); 
+            dlAnchor.setAttribute("download", `ziy_forex_backup.json`);
+            dlAnchor.click();
+        }
+
+        function importJSONData(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function() {
+                try {
+                    const parsed = JSON.parse(reader.result);
+                    if(Array.isArray(parsed)) {
+                        backtestTrades = parsed;
+                        localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
+                        updateDashboard();
+                    } else {
+                        alert("Invalid backup format.");
+                    }
+                } catch(e) {
+                    alert("Error parsing backup data.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearWorkspace() {
+            if(confirm("Are you sure you want to completely clear your local workspace logs? This will also clear IndexedDB charts.")) { 
+                backtestTrades = []; 
+                localStorage.removeItem('backtest_journal_trades'); 
+                if (db) {
+                    const transaction = db.transaction([storeName], "readwrite");
+                    transaction.objectStore(storeName).clear();
+                }
+                updateDashboard(); 
+            }
+        }
+    </script>
 </body>
 </html>
