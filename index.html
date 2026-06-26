@@ -4,34 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trading Session Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h2 { color: #333; }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #eef2f7;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
+<div class="container">
     <h2>Trading Session Tracker</h2>
-    <p>ውጤቱን ለማየት በብሮውዘርህ ላይ <strong>Console</strong> መክፈት አለብህ።</p>
+    <p>ውጤቱን በኮንሶል (Console) ላይ ማየት ትችላለህ። በተጨማሪም በገጹ ላይ ለማየት ከታች ያለውን ውጤት ተመልከት፡</p>
+    
+    <div class="result-box" id="display-result">
+        እየጫነ ነው...
+    </div>
+</div>
 
-    <!-- ጃቫስክሪፕቱ እንዲሰራ እዚህ ውስጥ መሆን አለበት -->
-    <script>
-        function getSessionByTime(dateString) { 
-            if (!dateString) return 'London'; 
-            
-            const date = new Date(dateString); 
-            if (isNaN(date.getTime())) { 
-                return 'Invalid Date'; 
-            } 
-            
-            const day = date.getUTCDate(); 
-            const sessions = ['New York', 'London', 'Asian']; 
-            return sessions[day % 3]; 
+<script>
+    // 1. የተስተካከለው እና UTC የሚጠቀመው ዋናው ፈንክሽን
+    function getSessionByTime(dateString) { 
+        // ቀን ካልገባ ወደ 'London' ይመለሳል
+        if (!dateString) return 'London'; 
+        
+        const date = new Date(dateString); 
+        
+        // ቀኑ ትክክለኛ መሆኑን ማረጋገጫ (Invalid Date ካልሆነ)
+        if (isNaN(date.getTime())) { 
+            return 'Invalid Date'; 
         } 
+        
+        // በሁሉም ሀገር አንድ አይነት ውጤት እንዲሰጥ UTC ቀን መውሰጃ
+        const day = date.getUTCDate(); 
+        
+        // Array በመጠቀም ሎጂኩን ማቅለል
+        const sessions = ['New York', 'London', 'Asian']; 
+        return sessions[day % 3]; 
+    } 
 
-        // ውጤቶቹን በኮንሶል (Console) ላይ ማተሚያ
-        console.log("2026-06-03 ->", getSessionByTime("2026-06-03")); 
-        console.log("2026-06-04 ->", getSessionByTime("2026-06-04")); 
-        console.log("2026-06-05 ->", getSessionByTime("2026-06-05")); 
-        console.log("ባዶ ሲሆን ->", getSessionByTime(""));          
-        console.log("ስህተት ሲሆን ->", getSessionByTime("የተሳሳተ ቀን")); 
-    </script>
+    // 2. ለሙከራ (Testing) ወደ Console ማተሚያ
+    console.log("2026-06-03 ->", getSessionByTime("2026-06-03")); // New York (ቀን 3)
+    console.log("2026-06-04 ->", getSessionByTime("2026-06-04")); // London (ቀን 4)
+    console.log("2026-06-05 ->", getSessionByTime("2026-06-05")); // Asian (ቀን 5)
+    console.log("ባዶ ሲሆን ->", getSessionByTime(""));             // London
+    console.log("ስህተት ሲሆን ->", getSessionByTime("የተሳሳተ ቀን")); // Invalid Date
+
+    // 3. ውጤቱን በስክሪኑ (UI) ላይ ለማሳየት (ለምሳሌ የዛሬውን ቀን ይወስዳል)
+    const today = new Date().toISOString().split('T')[0]; // የዛሬውን ቀን በ YYYY-MM-DD ፎርማት መውሰጃ
+    const currentSession = getSessionByTime(today);
+    
+    document.getElementById('display-result').innerText = `የዛሬው ቀን (${today}) ሴሽን፡ ${currentSession}`;
+</script>
 
 </body>
 </html>
