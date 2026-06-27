@@ -60,37 +60,29 @@
         </div>
     </header>
 
-    <!-- Main Summary Indicators -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <!-- Original Core Indicators Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="main-card p-4 rounded-xl relative overflow-hidden">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net P&L</span>
-            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500">$0.00</div>
+            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500 font-mono">$0.00</div>
         </div>
         <div class="main-card p-4 rounded-xl relative overflow-hidden">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Win Rate (Win %)</span>
-            <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white">0.00%</div>
-        </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg Risk</span>
-            <div id="avgRisk" class="text-xl md:text-2xl font-black mt-2 text-rose-500">$0.00</div>
-        </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Max Drawdown</span>
-            <div id="statDrawdown" class="text-xl md:text-2xl font-black mt-2 text-amber-500">0.00%</div>
+            <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white font-mono">0.00%</div>
         </div>
         <div class="main-card p-4 rounded-xl">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg W/L Ratio</span>
-            <div id="statAvgRatio" class="text-xl md:text-2xl font-black mt-2 text-sky-500 dark:text-cyan-400">0.00</div>
+            <div id="statAvgRatio" class="text-xl md:text-2xl font-black mt-2 text-sky-500 dark:text-cyan-400 font-mono">0.00</div>
             <div class="w-full bg-slate-200 dark:bg-gray-800 h-1 rounded-full mt-2 overflow-hidden flex">
                 <div id="barWinRatio" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
             </div>
         </div>
     </div>
 
-    <!-- Pair-by-Pair Performance Layout (with Mini Equity Curves) -->
+    <!-- Pair Performance Summary Header Only (No mini curves) -->
     <div class="main-card p-4 rounded-xl mb-8">
         <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <i class="fa-solid fa-layer-group text-sky-500 dark:text-cyan-400"></i> Pair Performance & Equity Curve (Pair Metrics)
+            <i class="fa-solid fa-layer-group text-sky-500 dark:text-cyan-400"></i> Pair Performance Metrics
         </h3>
         <div id="pairPerformanceContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             <div class="p-3 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No trading history recorded.</div>
@@ -136,11 +128,11 @@
                         <input type="text" id="tradeStrategy" placeholder="SMC/ICT" class="w-full p-2 rounded input-field" required>
                     </div>
                     <div>
-                        <label class="block font-medium mb-1 text-slate-500">Outcome</label>
-                        <select id="tradeOutcome" class="w-full p-2 rounded input-field">
-                            <option value="Win">WIN</option>
-                            <option value="Loss">LOSS</option>
-                            <option value="BE">BREAK-EVEN</option>
+                        <label class="block font-medium mb-1 text-slate-500">Session</label>
+                        <select id="tradeSession" class="w-full p-2 rounded input-field">
+                            <option value="Asian">Asian</option>
+                            <option value="London" selected>London</option>
+                            <option value="New York">New York</option>
                         </select>
                     </div>
                 </div>
@@ -153,6 +145,17 @@
                     <div>
                         <label class="block font-medium mb-1 text-slate-500">Risk-to-Reward (R:R)</label>
                         <input type="number" step="0.1" id="tradeRR" placeholder="e.g. 3.0" class="w-full p-2 rounded input-field" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1">
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Outcome</label>
+                        <select id="tradeOutcome" class="w-full p-2 rounded input-field">
+                            <option value="Win">WIN</option>
+                            <option value="Loss">LOSS</option>
+                            <option value="BE">BREAK-EVEN</option>
+                        </select>
                     </div>
                 </div>
 
@@ -175,16 +178,16 @@
 
         <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="main-card p-4 rounded-lg flex flex-col justify-between">
-                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-area text-sky-500 dark:text-cyan-400"></i> Equity Curve</span>
-                <div class="h-48 flex items-center justify-center relative"><canvas id="equityChart"></canvas></div>
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-pie text-sky-500 dark:text-cyan-400"></i> Sessions Layout</span>
+                <div class="grid grid-cols-3 text-center gap-2 mt-4 my-auto">
+                    <div class="p-4 rounded bg-amber-500/10 border border-amber-500/20"><div class="text-[10px] font-bold text-amber-500 uppercase">Asian</div><div id="asianLabel" class="text-2xl font-black text-slate-900 dark:text-white mt-1">0</div></div>
+                    <div class="p-4 rounded bg-blue-500/10 border border-blue-500/20"><div class="text-[10px] font-bold text-blue-500 uppercase">London</div><div id="londonLabel" class="text-2xl font-black text-slate-900 dark:text-white mt-1">0</div></div>
+                    <div class="p-4 rounded bg-purple-500/10 border border-purple-500/20"><div class="text-[10px] font-bold text-purple-500 uppercase">New York</div><div id="nyLabel" class="text-2xl font-black text-slate-900 dark:text-white mt-1">0</div></div>
+                </div>
             </div>
             <div class="main-card p-4 rounded-lg flex flex-col justify-between">
-                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-pie text-sky-500 dark:text-cyan-400"></i> Sessions Layout</span>
-                <div class="grid grid-cols-3 text-center gap-2 mt-4">
-                    <div class="p-2 rounded bg-amber-500/10 border border-amber-500/20"><div class="text-[10px] font-bold text-amber-500 uppercase">Asian</div><div id="asianLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
-                    <div class="p-2 rounded bg-blue-500/10 border border-blue-500/20"><div class="text-[10px] font-bold text-blue-500 uppercase">London</div><div id="londonLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
-                    <div class="p-2 rounded bg-purple-500/10 border border-purple-500/20"><div class="text-[10px] font-bold text-purple-500 uppercase">New York</div><div id="nyLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
-                </div>
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-bar text-sky-500 dark:text-cyan-400"></i> Pair P&L Breakdown</span>
+                <div class="h-48 flex items-center justify-center relative"><canvas id="pairBarChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -273,12 +276,10 @@
     </div>
 
     <script>
-        const startingBalance = 10000;
         let backtestTrades = JSON.parse(localStorage.getItem('backtest_journal_trades')) || [];
-        let eqChartInstance = null;
-        let pairChartInstances = {};
+        let pairBarChartInstance = null;
         let currentTheme = localStorage.getItem('journal_display_theme') || 'dark';
-        
+
         // IndexedDB Initialization
         let db = null;
         const dbName = "ZiyadForexImagesDB";
@@ -299,7 +300,6 @@
             console.error("IndexedDB initialization failed.");
         };
 
-        // Apply theme properly to body tag
         document.body.className = "p-4 md:p-8 " + currentTheme;
         if(currentTheme === 'dark') {
             document.documentElement.classList.add('dark');
@@ -334,15 +334,6 @@
                 icon.className = "fa-solid fa-moon";
                 txt.innerText = "Dark Mode";
             }
-        }
-
-        function getSessionByTime(dateString) {
-            if(!dateString) return 'London';
-            const dateObj = new Date(dateString);
-            const day = dateObj.getDate();
-            if (day % 3 === 0) return 'New York';
-            if (day % 3 === 1) return 'London';
-            return 'Asian';
         }
 
         function fileToBase64(file) {
@@ -405,10 +396,10 @@
                 Pair: document.getElementById('tradePair').value,
                 Type: document.getElementById('tradeType').value,
                 Strategy: document.getElementById('tradeStrategy').value,
+                Session: document.getElementById('tradeSession').value,
                 Outcome: document.getElementById('tradeOutcome').value,
                 Risk: parseFloat(document.getElementById('tradeRisk').value) || 0,
                 RR: parseFloat(document.getElementById('tradeRR').value) || 0,
-                Session: getSessionByTime(document.getElementById('tradeDate').value),
                 hasImages: validImages.length > 0
             };
 
@@ -430,15 +421,9 @@
         async function updateDashboard() {
             let totalNet = 0;
             let wins = 0, losses = 0, bes = 0;
-            let totalWinAmount = 0, totalLossAmount = 0, totalRiskAmount = 0;
+            let totalWinAmount = 0, totalLossAmount = 0;
 
             let sessionCounts = { 'Asian': 0, 'London': 0, 'New York': 0 };
-            let lineLabels = ["Start"];
-            let equityPoints = [startingBalance];
-            let rollingBalance = startingBalance;
-            let peakBalance = startingBalance;
-            let maxDrawdown = 0;
-
             let matrixData = {};
             let pairPerformanceMap = {};
 
@@ -450,7 +435,7 @@
             const filteredTrades = backtestTrades.filter(t => {
                 if (fPair !== "ALL" && t.Pair !== fPair) return false;
                 if (fOutcome !== "ALL" && t.Outcome !== fOutcome) return false;
-                if (fSession !== "ALL" && t.Session !== fSession) return false;
+                if (fSession && fSession !== "ALL" && t.Session !== fSession) return false;
                 
                 if (keyword !== "") {
                     const pairMatch = t.Pair?.toLowerCase().includes(keyword);
@@ -461,44 +446,23 @@
                 return true;
             });
 
-            const chronologicalTrades = [...filteredTrades].sort((a, b) => new Date(a.Date) - new Date(b.Date));
-
-            chronologicalTrades.forEach(t => {
+            filteredTrades.forEach(t => {
                 const risk = parseFloat(t.Risk) || 0;
                 const rr = parseFloat(t.RR) || 0;
                 const pair = t.Pair;
-                
-                totalRiskAmount += risk;
 
                 if (t.Outcome === "Win") t.Net_Profit = parseFloat((risk * rr).toFixed(2));
                 else if (t.Outcome === "Loss") t.Net_Profit = parseFloat((-risk).toFixed(2));
                 else t.Net_Profit = 0;
 
                 totalNet += t.Net_Profit;
-                rollingBalance += t.Net_Profit;
-
-                if (rollingBalance > peakBalance) {
-                    peakBalance = rollingBalance;
-                }
-                const currentDrawdown = peakBalance > 0 ? ((peakBalance - rollingBalance) / peakBalance) * 100 : 0;
-                if (currentDrawdown > maxDrawdown) {
-                    maxDrawdown = currentDrawdown;
-                }
-
-                equityPoints.push(parseFloat(rollingBalance.toFixed(2)));
-                lineLabels.push(t.Date ? t.Date.substring(5) : t.Pair);
-
                 sessionCounts[t.Session] = (sessionCounts[t.Session] || 0) + 1;
 
                 if (!pairPerformanceMap[pair]) {
-                    pairPerformanceMap[pair] = { total: 0, wins: 0, pnl: 0, history: [0] };
+                    pairPerformanceMap[pair] = { total: 0, wins: 0, pnl: 0 };
                 }
                 pairPerformanceMap[pair].total += 1;
                 pairPerformanceMap[pair].pnl += t.Net_Profit;
-                
-                let lastPoints = pairPerformanceMap[pair].history;
-                let newPoint = lastPoints[lastPoints.length - 1] + t.Net_Profit;
-                pairPerformanceMap[pair].history.push(parseFloat(newPoint.toFixed(2)));
 
                 if (t.Outcome === "Win") {
                     pairPerformanceMap[pair].wins += 1;
@@ -520,7 +484,6 @@
                 else { bes++; }
             });
 
-            // Sync Primary Indicators
             const netEl = document.getElementById('statNetPL');
             netEl.innerText = (totalNet >= 0 ? '+' : '') + '$' + totalNet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             netEl.className = `text-xl md:text-2xl font-black mt-2 ${totalNet >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
@@ -528,11 +491,6 @@
             const totalTradesCount = filteredTrades.length;
             const winRate = totalTradesCount > 0 ? ((wins / totalTradesCount) * 100).toFixed(2) : "0.00";
             document.getElementById('statWinRate').innerText = winRate + "%";
-
-            const avgRisk = totalTradesCount > 0 ? (totalRiskAmount / totalTradesCount).toFixed(2) : "0.00";
-            document.getElementById('avgRisk').innerText = "$" + parseFloat(avgRisk).toLocaleString();
-
-            document.getElementById('statDrawdown').innerText = maxDrawdown.toFixed(2) + "%";
 
             const avgWin = wins > 0 ? totalWinAmount / wins : 0;
             const avgLoss = losses > 0 ? totalLossAmount / losses : 0;
@@ -546,12 +504,10 @@
                 winRatioProgressBar.style.width = "0%";
             }
 
-            // Sync Sessions
-            document.getElementById('asianLabel').innerText = sessionCounts['Asian'];
-            document.getElementById('londonLabel').innerText = sessionCounts['London'];
-            document.getElementById('nyLabel').innerText = sessionCounts['New York'];
+            document.getElementById('asianLabel').innerText = sessionCounts['Asian'] || 0;
+            document.getElementById('londonLabel').innerText = sessionCounts['London'] || 0;
+            document.getElementById('nyLabel').innerText = sessionCounts['New York'] || 0;
 
-            // Pair Analytics layout builder
             const pairContainer = document.getElementById("pairPerformanceContainer");
             pairContainer.innerHTML = "";
             const activePairsList = Object.keys(pairPerformanceMap);
@@ -564,7 +520,6 @@
                     const pWinRate = pData.total > 0 ? ((pData.wins / pData.total) * 100).toFixed(1) : "0.0";
                     const pnlStyle = pData.pnl >= 0 ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500";
                     const borderTheme = pData.pnl >= 0 ? "border-emerald-500/10 dark:border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/10 dark:border-rose-500/20 bg-rose-500/5";
-                    const canvasId = `chart-${pName.replace('/', '-')}`;
 
                     pairContainer.innerHTML += `
                         <div class="p-3 rounded-lg border ${borderTheme} flex flex-col justify-between transition-all">
@@ -582,50 +537,17 @@
                                     <span class="font-black ${pnlStyle}">${pData.pnl >= 0 ? '+' : ''}$${pData.pnl.toFixed(2)}</span>
                                 </div>
                             </div>
-                            <div class="h-14 mt-2 relative w-full">
-                                <canvas id="${canvasId}"></canvas>
-                            </div>
                         </div>
                     `;
-
-                    setTimeout(() => {
-                        const ctx = document.getElementById(canvasId)?.getContext('2d');
-                        if (!ctx) return;
-                        if (pairChartInstances[canvasId]) { pairChartInstances[canvasId].destroy(); }
-                        
-                        const strokeColor = pData.pnl >= 0 ? '#10b981' : '#f43f5e';
-                        pairChartInstances[canvasId] = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: pData.history.map((_, i) => i),
-                                datasets: [{
-                                    data: pData.history,
-                                    borderColor: strokeColor,
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    tension: 0.2,
-                                    fill: false
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                                scales: { x: { display: false }, y: { display: false } }
-                            }
-                        });
-                    }, 50);
                 });
             }
 
-            // Sync Table Performance Logs
             const tableBody = document.getElementById('tradeLogTable');
             tableBody.innerHTML = "";
             
             if (filteredTrades.length === 0) {
                 tableBody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400 dark:text-gray-500 italic">No historical backup match criteria.</td></tr>`;
             } else {
-                // Display reverse chronological logs
                 const logDisplayOrder = [...filteredTrades].sort((a, b) => new Date(b.Date) - new Date(a.Date));
                 for (const t of logDisplayOrder) {
                     const profitStyle = t.Net_Profit > 0 ? "text-emerald-500" : (t.Net_Profit < 0 ? "text-rose-500" : "text-slate-400");
@@ -648,7 +570,7 @@
                             <td class="p-3 font-mono text-[11px]">${t.Date || 'N/A'}</td>
                             <td class="p-3 font-bold text-slate-900 dark:text-white">${t.Pair}</td>
                             <td class="p-3"><span class="font-bold text-[10px] uppercase ${t.Type === 'Buy' ? 'text-sky-500' : 'text-amber-500'}">${t.Type}</span></td>
-                            <td class="p-3"><span class="text-slate-500">${t.Session}</span></td>
+                            <td class="p-3"><span class="text-slate-500 text-[11px] font-bold">${t.Session || 'London'}</span></td>
                             <td class="p-3 font-mono text-slate-400">${t.Strategy}</td>
                             <td class="p-3 font-mono">$${t.Risk}</td>
                             <td class="p-3 font-mono">${t.RR}:1</td>
@@ -665,11 +587,8 @@
                 }
             }
 
-            // Sync Matrix Performance View
             renderMatrixView(matrixData);
-
-            // Sync Main Landscape Equity Curve
-            renderMainEquityCurve(lineLabels, equityPoints);
+            renderPairBarChart(pairPerformanceMap);
         }
 
         function renderMatrixView(matrixData) {
@@ -702,29 +621,28 @@
             });
         }
 
-        function renderMainEquityCurve(labels, points) {
-            const canvas = document.getElementById('equityChart');
+        function renderPairBarChart(pairDataMap) {
+            const canvas = document.getElementById('pairBarChart');
             if(!canvas) return;
             const ctx = canvas.getContext('2d');
-            if (eqChartInstance) { eqChartInstance.destroy(); }
+            if (pairBarChartInstance) { pairBarChartInstance.destroy(); }
 
-            const chartColor = currentTheme === 'dark' ? '#66fcf1' : '#0ea5e9';
+            const pairs = Object.keys(pairDataMap);
+            const pnlValues = pairs.map(p => pairDataMap[p].pnl);
+            const backgroundColors = pnlValues.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.6)' : 'rgba(244, 63, 94, 0.6)');
+            const borderColors = pnlValues.map(v => v >= 0 ? '#10b981' : '#f43f5e');
+
             const gridColor = currentTheme === 'dark' ? '#20222b' : '#e2e8f0';
 
-            eqChartInstance = new Chart(ctx, {
-                type: 'line',
+            pairBarChartInstance = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: pairs,
                     datasets: [{
-                        label: 'Balance ($)',
-                        data: points,
-                        borderColor: chartColor,
-                        backgroundColor: 'transparent',
-                        borderWidth: 2.5,
-                        pointBackgroundColor: chartColor,
-                        pointRadius: points.length > 20 ? 1 : 3,
-                        tension: 0.15,
-                        fill: false
+                        data: pnlValues,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1.5
                     }]
                 },
                 options: {
@@ -732,7 +650,7 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: '#94a3b8', font: { size: 9 } } },
+                        x: { grid: { color: 'transparent' }, ticks: { color: '#94a3b8', font: { size: 10, weight: 'bold' } } },
                         y: { grid: { color: gridColor }, ticks: { color: '#94a3b8', font: { size: 9 } } }
                     }
                 }
