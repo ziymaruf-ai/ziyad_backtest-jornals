@@ -1,797 +1,549 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ziyad Forex Trading Journal</title>
-    <!-- Tailwind CSS v4 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif; transition: background-color 0.3s, color 0.3s; }
-        
-        /* Dark Theme Styles */
-        .dark { background-color: #0d0e12; color: #c5c6c7; }
-        .dark .main-card { background-color: #16171d; border: 1px solid #20222b; }
-        .dark .input-field { background-color: #0d0e12; border: 1px solid #45a29e; color: #ffffff; }
-        .dark .input-field:focus { border-color: #66fcf1; }
-        .dark .preview-img { border: 1px solid #2d313f; }
-        .dark .table-hdr { background-color: rgba(15, 23, 42, 0.8); color: #94a3b8; }
-        .dark .table-row:hover { background-color: rgba(32, 34, 43, 0.5); }
-        .dark .table-border { border-color: rgba(32, 34, 43, 0.6); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ziyad Forex Trading Journal</title>
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        /* Dark Theme Styles */
+        .dark { background-color: #0d0e12; color: #c5c6c7; }
+        .dark .main-card { background-color: #16171d; border: 1px solid #20222b; }
+        .dark .input-field { background-color: #0d0e12; border: 1px solid #45a29e; color: #ffffff; }
+        .dark .input-field:focus { border-color: #66fcf1; }
+        .dark .preview-img { border: 1px solid #2d313f; }
+        .dark .table-hdr { background-color: rgba(15, 23, 42, 0.8); color: #94a3b8; }
+        .dark .table-row:hover { background-color: rgba(32, 34, 43, 0.5); }
+        .dark .table-border { border-color: rgba(32, 34, 43, 0.6); }
 
-        /* Light Theme Styles */
-        .light { background-color: #f4f6f9; color: #333333; }
-        .light .main-card { background-color: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .light .input-field { background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; }
-        .light .input-field:focus { border-color: #0ea5e9; outline: none; }
-        .light .preview-img { border: 1px solid #cbd5e1; }
-        .light .table-hdr { background-color: #f8fafc; color: #475569; }
-        .light .table-row:hover { background-color: #f1f5f9; }
-        .light .table-border { border-color: #e2e8f0; }
+        /* Light Theme Styles */
+        .light { background-color: #f4f6f9; color: #333333; }
+        .light .main-card { background-color: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .light .input-field { background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; }
+        .light .input-field:focus { border-color: #0ea5e9; outline: none; }
+        .light .preview-img { border: 1px solid #cbd5e1; }
+        .light .table-hdr { background-color: #f8fafc; color: #475569; }
+        .light .table-row:hover { background-color: #f1f5f9; }
+        .light .table-border { border-color: #e2e8f0; }
 
-        .preview-img { transition: transform 0.2s; max-height: 44px; max-width: 65px; object-fit: cover; border-radius: 4px; cursor: pointer; display: inline-block; margin-right: 4px; }
-        .preview-img:hover { transform: scale(4); z-index: 50; position: relative; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); border-color: #0ea5e9; }
-    </style>
+        .preview-img { transition: transform 0.2s; max-height: 44px; max-width: 65px; object-fit: cover; border-radius: 4px; cursor: pointer; display: inline-block; margin-right: 4px; }
+        .preview-img:hover { transform: scale(4); z-index: 50; position: relative; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); border-color: #0ea5e9; }
+    </style>
 </head>
 <body class="p-4 md:p-8 dark">
 
-    <header class="mb-8 border-b border-slate-200 dark:border-gray-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                <i class="fa-solid fa-chart-line text-sky-500 dark:text-cyan-400"></i> ZIYAD FOREX TRADING JOURNAL
-            </h1>
-            <p class="text-xs text-sky-600 dark:text-cyan-400 font-mono mt-1">Workspace // Backtesting & Analytics Engine</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-            <button onclick="toggleDisplayTheme()" class="bg-amber-500 dark:bg-indigo-600 text-white text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
-                <i id="themeIcon" class="fa-solid fa-sun"></i> <span id="themeText">Light Mode</span>
-            </button>
-            <button onclick="exportJSONData()" class="bg-slate-200 hover:bg-slate-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-white text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
-                <i class="fa-solid fa-download"></i> Export Backup
-            </button>
-            <label class="bg-sky-600 hover:bg-sky-500 text-white dark:text-black text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 cursor-pointer transition">
-                <i class="fa-solid fa-upload"></i> Import Backup <input type="file" id="importFile" accept=".json" onchange="importJSONData(event)" class="hidden">
-            </label>
-            <button onclick="clearWorkspace()" class="bg-rose-600/20 hover:bg-rose-600/30 dark:bg-rose-900/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
-                <i class="fa-solid fa-trash-can"></i> Clear Journal
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Summary Indicators -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net P&L</span>
-            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500">$0.00</div>
-        </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Win Rate (Win %)</span>
-            <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white">0.00%</div>
-        </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg Risk</span>
-            <div id="avgRisk" class="text-xl md:text-2xl font-black mt-2 text-rose-500">$0.00</div>
-        </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Max Drawdown</span>
-            <div id="statDrawdown" class="text-xl md:text-2xl font-black mt-2 text-amber-500">0.00%</div>
-        </div>
-        <div class="main-card p-4 rounded-xl">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg W/L Ratio</span>
-            <div id="statAvgRatio" class="text-xl md:text-2xl font-black mt-2 text-sky-500 dark:text-cyan-400">0.00</div>
-            <div class="w-full bg-slate-200 dark:bg-gray-800 h-1 rounded-full mt-2 overflow-hidden flex">
-                <div id="barWinRatio" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pair-by-Pair Performance Layout (with Mini Equity Curves) -->
-    <div class="main-card p-4 rounded-xl mb-8">
-        <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <i class="fa-solid fa-layer-group text-sky-500 dark:text-cyan-400"></i> Pair Performance & Equity Curve (Pair Metrics)
-        </h3>
-        <div id="pairPerformanceContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            <div class="p-3 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No trading history recorded.</div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <div class="main-card p-5 rounded-lg flex flex-col gap-4">
-            <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-gray-800 pb-2">
-                <i class="fa-solid fa-pen-to-square text-sky-500 dark:text-cyan-400"></i> Log New Trade
-            </h2>
-            <form id="tradeForm" onsubmit="saveTradeLog(event)" class="flex flex-col gap-3 text-xs">
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-medium mb-1 text-slate-500">Execution Date</label>
-                        <input type="date" id="tradeDate" class="w-full p-2 rounded input-field" required>
-                    </div>
-                    <div>
-                        <label class="block font-medium mb-1 text-slate-500">Currency Pair</label>
-                        <select id="tradePair" class="w-full p-2 rounded input-field">
-                            <optgroup label="Forex Major Pairs">
-                                <option value="EUR/USD">EUR/USD</option>
-                                <option value="GBP/USD">GBP/USD</option>
-                            </optgroup>
-                            <optgroup label="Precious Metals & Crypto">
-                                <option value="XAU/USD">XAU/USD (Gold)</option>
-                                <option value="BTC/USD">BTC/USD (Bitcoin)</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2">
-                    <div>
-                        <label class="block font-medium mb-1 text-slate-500">Type</label>
-                        <select id="tradeType" class="w-full p-2 rounded input-field">
-                            <option value="Buy">BUY</option>
-                            <option value="Sell">SELL</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-medium mb-1 text-slate-500">Strategy</label>
-                        <input type="text" id="tradeStrategy" placeholder="SMC/ICT" class="w-full p-2 rounded input-field" required>
-                    </div>
-                    <div>
-                        <label class="block font-medium mb-1 text-slate-500">Outcome</label>
-                        <select id="tradeOutcome" class="w-full p-2 rounded input-field">
-                            <option value="Win">WIN</option>
-                            <option value="Loss">LOSS</option>
-                            <option value="BE">BREAK-EVEN</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block font-medium mb-1 text-slate-500">Risk ($)</label>
-                        <input type="number" step="0.01" id="tradeRisk" placeholder="e.g. 100" class="w-full p-2 rounded input-field" required>
-                    </div>
-                    <div>
-                        <label class="block font-medium mb-1 text-slate-500">Risk-to-Reward (R:R)</label>
-                        <input type="number" step="0.1" id="tradeRR" placeholder="e.g. 3.0" class="w-full p-2 rounded input-field" required>
-                    </div>
-                </div>
-
-                <div class="border-t border-slate-100 dark:border-gray-800 my-1 pt-2">
-                    <label class="block font-bold mb-1 text-sky-600 dark:text-cyan-400">Chart Images (Up to 5 photos - Saved in IndexedDB)</label>
-                    <div class="flex flex-col gap-1.5 mt-2 text-[11px]">
-                        <div><span class="text-slate-400 font-medium">1. Daily/HTF Bias:</span> <input type="file" id="imgSetup1" accept="image/*" class="text-slate-500 text-[10px]"></div>
-                        <div><span class="text-slate-400 font-medium">2. 4H/1H Structure:</span> <input type="file" id="imgSetup2" accept="image/*" class="text-slate-500 text-[10px]"></div>
-                        <div><span class="text-slate-400 font-medium">3. 15m/5m POI:</span> <input type="file" id="imgSetup3" accept="image/*" class="text-slate-500 text-[10px]"></div>
-                        <div><span class="text-slate-400 font-medium">4. 1m Entry Setup:</span> <input type="file" id="imgSetup4" accept="image/*" class="text-slate-500 text-[10px]"></div>
-                        <div><span class="text-slate-400 font-medium">5. Final Outcome:</span> <input type="file" id="imgSetup5" accept="image/*" class="text-slate-500 text-[10px]"></div>
-                    </div>
-                </div>
-
-                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-sky-500 to-emerald-500 dark:from-cyan-500 dark:to-teal-500 text-white dark:text-black font-black uppercase tracking-wider py-2.5 rounded transition shadow-lg cursor-pointer">
-                    Add to Journal
-                </button>
-            </form>
-        </div>
-
-        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="main-card p-4 rounded-lg flex flex-col justify-between">
-                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-area text-sky-500 dark:text-cyan-400"></i> Equity Curve</span>
-                <div class="h-48 flex items-center justify-center relative"><canvas id="equityChart"></canvas></div>
-            </div>
-            <div class="main-card p-4 rounded-lg flex flex-col justify-between">
-                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-pie text-sky-500 dark:text-cyan-400"></i> Sessions Layout</span>
-                <div class="grid grid-cols-3 text-center gap-2 mt-4">
-                    <div class="p-2 rounded bg-amber-500/10 border border-amber-500/20"><div class="text-[10px] font-bold text-amber-500 uppercase">Asian</div><div id="asianLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
-                    <div class="p-2 rounded bg-blue-500/10 border border-blue-500/20"><div class="text-[10px] font-bold text-blue-500 uppercase">London</div><div id="londonLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
-                    <div class="p-2 rounded bg-purple-500/10 border border-purple-500/20"><div class="text-[10px] font-bold text-purple-500 uppercase">New York</div><div id="nyLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="main-card p-4 rounded-lg mb-8">
-        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-800 pb-2 mb-3">
-            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                <i class="fa-solid fa-table-cells text-sky-500 dark:text-cyan-400"></i> Yearly / Monthly Performance Matrix
-            </h3>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-center text-[11px] min-w-[800px] border-separate border-spacing-1">
-                <thead>
-                    <tr class="text-slate-400 font-bold uppercase">
-                        <th class="p-1.5 text-left">Year</th>
-                        <th class="p-1.5">Jan</th><th class="p-1.5">Feb</th><th class="p-1.5">Mar</th>
-                        <th class="p-1.5">Apr</th><th class="p-1.5">May</th><th class="p-1.5">Jun</th>
-                        <th class="p-1.5">Jul</th><th class="p-1.5">Aug</th><th class="p-1.5">Sep</th>
-                        <th class="p-1.5">Oct</th><th class="p-1.5">Nov</th><th class="p-1.5">Dec</th>
-                        <th class="p-1.5 bg-slate-100 dark:bg-gray-800/60 rounded text-slate-800 dark:text-white font-bold">Total</th>
-                    </tr>
-                </thead>
-                <tbody id="matrixTableBody" class="font-medium text-slate-700 dark:text-gray-300"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="main-card rounded-lg overflow-hidden">
-        <div class="p-4 border-b border-slate-100 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/40">
-            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                <i class="fa-solid fa-database text-sky-500 dark:text-cyan-400"></i> Simulation History Logs
-            </h3>
-        </div>
-
-        <div class="p-3 bg-slate-100/50 dark:bg-gray-900/25 border-b border-slate-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4 text-xs">
-            <div class="flex flex-wrap gap-3">
-                <div class="flex items-center gap-1.5">
-                    <label class="font-bold text-slate-400">Filter by Pair:</label>
-                    <select id="filterPair" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
-                        <option value="ALL">All Pairs</option>
-                        <option value="EUR/USD">EUR/USD</option>
-                        <option value="GBP/USD">GBP/USD</option>
-                        <option value="XAU/USD">XAU/USD</option>
-                        <option value="BTC/USD">BTC/USD</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <label class="font-bold text-slate-400">Filter by Outcome:</label>
-                    <select id="filterOutcome" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
-                        <option value="ALL">All Outcomes</option>
-                        <option value="Win">WIN</option>
-                        <option value="Loss">LOSS</option>
-                        <option value="BE">BREAK-EVEN</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-1.5">
-                    <label class="font-bold text-slate-400">Filter by Session:</label>
-                    <select id="filterSession" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
-                        <option value="ALL">All Sessions</option>
-                        <option value="Asian">Asian</option>
-                        <option value="London">London</option>
-                        <option value="New York">New York</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="w-full md:w-64 flex items-center relative">
-                <span class="absolute left-2.5 text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <input type="text" id="searchInput" oninput="updateDashboard()" placeholder="Search strategy or keyword..." class="w-full pl-8 pr-2 py-1.5 rounded input-field bg-white dark:bg-slate-900 text-xs">
-            </div>
-        </div>
-
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                    <tr class="table-hdr font-bold border-b border-slate-200 dark:border-gray-800 uppercase text-[10px] tracking-wider">
-                        <th class="p-3">Date</th><th class="p-3">Pair</th><th class="p-3">Type</th>
-                        <th class="p-3">Session</th><th class="p-3">Strategy</th><th class="p-3">Risk ($)</th>
-                        <th class="p-3">R:R</th><th class="p-3">Net Profit ($)</th><th class="p-3">Outcome</th>
-                        <th class="p-3 text-center">Chart Layout (Hover to zoom)</th><th class="p-3 text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="tradeLogTable" class="divide-y table-border text-slate-700 dark:text-gray-300 font-medium"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        const startingBalance = 10000;
-        let backtestTrades = JSON.parse(localStorage.getItem('backtest_journal_trades')) || [];
-        let eqChartInstance = null;
-        let pairChartInstances = {};
-        let currentTheme = localStorage.getItem('journal_display_theme') || 'dark';
-        
-        // IndexedDB Initialization
-        let db = null;
-        const dbName = "ZiyadForexImagesDB";
-        const storeName = "trade_images";
-
-        const request = indexedDB.open(dbName, 1);
-        request.onupgradeneeded = function(e) {
-            let database = e.target.result;
-            if (!database.objectStoreNames.contains(storeName)) {
-                database.createObjectStore(storeName, { keyPath: "id" });
-            }
-        };
-        request.onsuccess = function(e) {
-            db = e.target.result;
-            updateDashboard();
-        };
-        request.onerror = function(e) {
-            console.error("IndexedDB initialization failed.");
-        };
-
-        // Apply theme properly to body tag
-        document.body.className = "p-4 md:p-8 " + currentTheme;
-        if(currentTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            syncThemeInterfaceDetails(currentTheme);
-        });
-
-        function toggleDisplayTheme() {
-            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
-            document.body.className = "p-4 md:p-8 " + currentTheme;
-            if(currentTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-            localStorage.setItem('journal_display_theme', currentTheme);
-            syncThemeInterfaceDetails(currentTheme);
-            updateDashboard();
-        }
-
-        function syncThemeInterfaceDetails(theme) {
-            const icon = document.getElementById('themeIcon');
-            const txt = document.getElementById('themeText');
-            if(theme === 'dark') {
-                icon.className = "fa-solid fa-sun";
-                txt.innerText = "Light Mode";
-            } else {
-                icon.className = "fa-solid fa-moon";
-                txt.innerText = "Dark Mode";
-            }
-        }
-
-        function getSessionByTime(dateString) {
-            if(!dateString) return 'London';
-            const dateObj = new Date(dateString);
-            const day = dateObj.getDate();
-            if (day % 3 === 0) return 'New York';
-            if (day % 3 === 1) return 'London';
-            return 'Asian';
-        }
-
-        function fileToBase64(file) {
-            return new Promise((resolve) => {
-                if(!file) return resolve("");
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = () => resolve("");
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function saveImagesToIndexedDB(tradeId, imagesArray) {
-            if (!db) return;
-            const transaction = db.transaction([storeName], "readwrite");
-            const store = transaction.objectStore(storeName);
-            store.put({ id: tradeId, images: imagesArray });
-        }
-
-        function getImagesFromIndexedDB(tradeId) {
-            return new Promise((resolve) => {
-                if (!db) return resolve([]);
-                const transaction = db.transaction([storeName], "readonly");
-                const store = transaction.objectStore(storeName);
-                const request = store.get(tradeId);
-                request.onsuccess = () => resolve(request.result ? request.result.images : []);
-                request.onerror = () => resolve([]);
-            });
-        }
-
-        function deleteImagesFromIndexedDB(tradeId) {
-            if (!db) return;
-            const transaction = db.transaction([storeName], "readwrite");
-            const store = transaction.objectStore(storeName);
-            store.delete(tradeId);
-        }
-
-        async function saveTradeLog(e) {
-            e.preventDefault();
-            
-            const imageFiles = [
-                document.getElementById('imgSetup1').files[0],
-                document.getElementById('imgSetup2').files[0],
-                document.getElementById('imgSetup3').files[0],
-                document.getElementById('imgSetup4').files[0],
-                document.getElementById('imgSetup5').files[0]
-            ];
-            
-            const b64Images = await Promise.all(imageFiles.map(file => fileToBase64(file)));
-            const validImages = b64Images.filter(img => img !== "");
-            const tradeId = Date.now().toString();
-
-            if (validImages.length > 0) {
-                saveImagesToIndexedDB(tradeId, validImages);
-            }
-
-            const newTrade = {
-                id: tradeId,
-                Date: document.getElementById('tradeDate').value,
-                Pair: document.getElementById('tradePair').value,
-                Type: document.getElementById('tradeType').value,
-                Strategy: document.getElementById('tradeStrategy').value,
-                Outcome: document.getElementById('tradeOutcome').value,
-                Risk: parseFloat(document.getElementById('tradeRisk').value) || 0,
-                RR: parseFloat(document.getElementById('tradeRR').value) || 0,
-                Session: getSessionByTime(document.getElementById('tradeDate').value),
-                hasImages: validImages.length > 0
-            };
-
-            backtestTrades.push(newTrade);
-            localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
-            document.getElementById('tradeForm').reset();
-            updateDashboard();
-        }
-
-        function removeTradeRecord(id) {
-            if(confirm("Are you sure you want to delete this trade record?")) {
-                backtestTrades = backtestTrades.filter(t => t.id !== id);
-                localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
-                deleteImagesFromIndexedDB(id);
-                updateDashboard();
-            }
-        }
-
-        async function updateDashboard() {
-            let totalNet = 0;
-            let wins = 0, losses = 0, bes = 0;
-            let totalWinAmount = 0, totalLossAmount = 0, totalRiskAmount = 0;
-
-            let sessionCounts = { 'Asian': 0, 'London': 0, 'New York': 0 };
-            let lineLabels = ["Start"];
-            let equityPoints = [startingBalance];
-            let rollingBalance = startingBalance;
-            let peakBalance = startingBalance;
-            let maxDrawdown = 0;
-
-            let matrixData = {};
-            let pairPerformanceMap = {};
-
-            const fPair = document.getElementById('filterPair').value;
-            const fOutcome = document.getElementById('filterOutcome').value;
-            const fSession = document.getElementById('filterSession').value;
-            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-
-            const filteredTrades = backtestTrades.filter(t => {
-                if (fPair !== "ALL" && t.Pair !== fPair) return false;
-                if (fOutcome !== "ALL" && t.Outcome !== fOutcome) return false;
-                if (fSession !== "ALL" && t.Session !== fSession) return false;
-                
-                if (keyword !== "") {
-                    const pairMatch = t.Pair?.toLowerCase().includes(keyword);
-                    const strategyMatch = t.Strategy?.toLowerCase().includes(keyword);
-                    const outcomeMatch = t.Outcome?.toLowerCase().includes(keyword);
-                    if (!pairMatch && !strategyMatch && !outcomeMatch) return false;
-                }
-                return true;
-            });
-
-            const chronologicalTrades = [...filteredTrades].sort((a, b) => new Date(a.Date) - new Date(b.Date));
-
-            chronologicalTrades.forEach(t => {
-                const risk = parseFloat(t.Risk) || 0;
-                const rr = parseFloat(t.RR) || 0;
-                const pair = t.Pair;
-                
-                totalRiskAmount += risk;
-
-                if (t.Outcome === "Win") t.Net_Profit = parseFloat((risk * rr).toFixed(2));
-                else if (t.Outcome === "Loss") t.Net_Profit = parseFloat((-risk).toFixed(2));
-                else t.Net_Profit = 0;
-
-                totalNet += t.Net_Profit;
-                rollingBalance += t.Net_Profit;
-
-                if (rollingBalance > peakBalance) {
-                    peakBalance = rollingBalance;
-                }
-                const currentDrawdown = peakBalance > 0 ? ((peakBalance - rollingBalance) / peakBalance) * 100 : 0;
-                if (currentDrawdown > maxDrawdown) {
-                    maxDrawdown = currentDrawdown;
-                }
-
-                equityPoints.push(parseFloat(rollingBalance.toFixed(2)));
-                lineLabels.push(t.Date ? t.Date.substring(5) : t.Pair);
-
-                sessionCounts[t.Session] = (sessionCounts[t.Session] || 0) + 1;
-
-                if (!pairPerformanceMap[pair]) {
-                    pairPerformanceMap[pair] = { total: 0, wins: 0, pnl: 0, history: [0] };
-                }
-                pairPerformanceMap[pair].total += 1;
-                pairPerformanceMap[pair].pnl += t.Net_Profit;
-                
-                let lastPoints = pairPerformanceMap[pair].history;
-                let newPoint = lastPoints[lastPoints.length - 1] + t.Net_Profit;
-                pairPerformanceMap[pair].history.push(parseFloat(newPoint.toFixed(2)));
-
-                if (t.Outcome === "Win") {
-                    pairPerformanceMap[pair].wins += 1;
-                }
-
-                if (t.Date) {
-                    const dateParts = t.Date.split('-'); 
-                    const tYear = dateParts[0];
-                    const tMonth = parseInt(dateParts[1]) - 1; 
-                    if (!matrixData[tYear]) {
-                        matrixData[tYear] = Array(12).fill(null).map(() => ({ pnl: 0, count: 0 }));
-                    }
-                    matrixData[tYear][tMonth].pnl += t.Net_Profit;
-                    matrixData[tYear][tMonth].count += 1;
-                }
-
-                if (t.Outcome === "Win") { wins++; totalWinAmount += t.Net_Profit; }
-                else if (t.Outcome === "Loss") { losses++; totalLossAmount += Math.abs(t.Net_Profit); }
-                else { bes++; }
-            });
-
-            // Sync Primary Indicators
-            const netEl = document.getElementById('statNetPL');
-            netEl.innerText = (totalNet >= 0 ? '+' : '') + '$' + totalNet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            netEl.className = `text-xl md:text-2xl font-black mt-2 ${totalNet >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
-
-            const totalTradesCount = filteredTrades.length;
-            const winRate = totalTradesCount > 0 ? ((wins / totalTradesCount) * 100).toFixed(2) : "0.00";
-            document.getElementById('statWinRate').innerText = winRate + "%";
-
-            const avgRisk = totalTradesCount > 0 ? (totalRiskAmount / totalTradesCount).toFixed(2) : "0.00";
-            document.getElementById('avgRisk').innerText = "$" + parseFloat(avgRisk).toLocaleString();
-
-            document.getElementById('statDrawdown').innerText = maxDrawdown.toFixed(2) + "%";
-
-            const avgWin = wins > 0 ? totalWinAmount / wins : 0;
-            const avgLoss = losses > 0 ? totalLossAmount / losses : 0;
-            const wlRatio = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : (avgWin > 0 ? "Pure Win" : "0.00");
-            document.getElementById('statAvgRatio').innerText = wlRatio;
-            
-            const winRatioProgressBar = document.getElementById('barWinRatio');
-            if (totalTradesCount > 0) {
-                winRatioProgressBar.style.width = winRate + "%";
-            } else {
-                winRatioProgressBar.style.width = "0%";
-            }
-
-            // Sync Sessions
-            document.getElementById('asianLabel').innerText = sessionCounts['Asian'];
-            document.getElementById('londonLabel').innerText = sessionCounts['London'];
-            document.getElementById('nyLabel').innerText = sessionCounts['New York'];
-
-            // Pair Analytics layout builder
-            const pairContainer = document.getElementById("pairPerformanceContainer");
-            pairContainer.innerHTML = "";
-            const activePairsList = Object.keys(pairPerformanceMap);
-
-            if (activePairsList.length === 0) {
-                pairContainer.innerHTML = `<div class="p-2 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No trading history recorded.</div>`;
-            } else {
-                activePairsList.forEach(pName => {
-                    const pData = pairPerformanceMap[pName];
-                    const pWinRate = pData.total > 0 ? ((pData.wins / pData.total) * 100).toFixed(1) : "0.0";
-                    const pnlStyle = pData.pnl >= 0 ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500";
-                    const borderTheme = pData.pnl >= 0 ? "border-emerald-500/10 dark:border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/10 dark:border-rose-500/20 bg-rose-500/5";
-                    const canvasId = `chart-${pName.replace('/', '-')}`;
-
-                    pairContainer.innerHTML += `
-                        <div class="p-3 rounded-lg border ${borderTheme} flex flex-col justify-between transition-all">
-                            <div>
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="font-bold text-xs text-slate-900 dark:text-white">${pName}</span>
-                                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200/50 dark:bg-gray-800 text-slate-600 dark:text-gray-400">${pData.total} Trades</span>
-                                </div>
-                                <div class="flex justify-between text-[11px] mt-1">
-                                    <span class="text-slate-400 dark:text-gray-500">Win Rate</span>
-                                    <span class="font-bold text-slate-800 dark:text-gray-200">${pWinRate}%</span>
-                                </div>
-                                <div class="flex justify-between text-[11px] mt-0.5">
-                                    <span class="text-slate-400 dark:text-gray-500">Net P&L</span>
-                                    <span class="font-black ${pnlStyle}">${pData.pnl >= 0 ? '+' : ''}$${pData.pnl.toFixed(2)}</span>
-                                </div>
-                            </div>
-                            <div class="h-14 mt-2 relative w-full">
-                                <canvas id="${canvasId}"></canvas>
-                            </div>
-                        </div>
-                    `;
-
-                    setTimeout(() => {
-                        const ctx = document.getElementById(canvasId)?.getContext('2d');
-                        if (!ctx) return;
-                        if (pairChartInstances[canvasId]) { pairChartInstances[canvasId].destroy(); }
-                        
-                        const strokeColor = pData.pnl >= 0 ? '#10b981' : '#f43f5e';
-                        pairChartInstances[canvasId] = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: pData.history.map((_, i) => i),
-                                datasets: [{
-                                    data: pData.history,
-                                    borderColor: strokeColor,
-                                    borderWidth: 2,
-                                    pointRadius: 0,
-                                    tension: 0.2,
-                                    fill: false
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                                scales: { x: { display: false }, y: { display: false } }
-                            }
-                        });
-                    }, 50);
-                });
-            }
-
-            // Sync Table Performance Logs
-            const tableBody = document.getElementById('tradeLogTable');
-            tableBody.innerHTML = "";
-            
-            if (filteredTrades.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400 dark:text-gray-500 italic">No historical backup match criteria.</td></tr>`;
-            } else {
-                // Display reverse chronological logs
-                const logDisplayOrder = [...filteredTrades].sort((a, b) => new Date(b.Date) - new Date(a.Date));
-                for (const t of logDisplayOrder) {
-                    const profitStyle = t.Net_Profit > 0 ? "text-emerald-500" : (t.Net_Profit < 0 ? "text-rose-500" : "text-slate-400");
-                    const badgeStyle = t.Outcome === "Win" ? "bg-emerald-500/10 text-emerald-500" : (t.Outcome === "Loss" ? "bg-rose-500/10 text-rose-500" : "bg-slate-500/10 text-slate-400");
-                    
-                    let imageThumbnailsMarkup = `<span class="text-gray-500 italic text-[10px]">None</span>`;
-                    if (t.hasImages) {
-                        const imgs = await getImagesFromIndexedDB(t.id);
-                        if (imgs && imgs.length > 0) {
-                            imageThumbnailsMarkup = `<div class="flex items-center justify-center gap-1">`;
-                            imgs.forEach(b64 => {
-                                imageThumbnailsMarkup += `<img src="${b64}" class="preview-img" alt="Setup Layout" onclick="openImageWindow('${b64}')" />`;
-                            });
-                            imageThumbnailsMarkup += `</div>`;
-                        }
-                    }
-
-                    tableBody.innerHTML += `
-                        <tr class="table-row border-b table-border transition-colors">
-                            <td class="p-3 font-mono text-[11px]">${t.Date || 'N/A'}</td>
-                            <td class="p-3 font-bold text-slate-900 dark:text-white">${t.Pair}</td>
-                            <td class="p-3"><span class="font-bold text-[10px] uppercase ${t.Type === 'Buy' ? 'text-sky-500' : 'text-amber-500'}">${t.Type}</span></td>
-                            <td class="p-3"><span class="text-slate-500">${t.Session}</span></td>
-                            <td class="p-3 font-mono text-slate-400">${t.Strategy}</td>
-                            <td class="p-3 font-mono">$${t.Risk}</td>
-                            <td class="p-3 font-mono">${t.RR}:1</td>
-                            <td class="p-3 font-mono font-bold ${profitStyle}">${t.Net_Profit >= 0 ? '+' : ''}$${t.Net_Profit.toFixed(2)}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase ${badgeStyle}">${t.Outcome}</span></td>
-                            <td class="p-3 text-center">${imageThumbnailsMarkup}</td>
-                            <td class="p-3 text-center">
-                                <button onclick="removeTradeRecord('${t.id}')" class="text-rose-500 hover:text-rose-400 transition p-1 cursor-pointer">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            }
-
-            // Sync Matrix Performance View
-            renderMatrixView(matrixData);
-
-            // Sync Main Landscape Equity Curve
-            renderMainEquityCurve(lineLabels, equityPoints);
-        }
-
-        function renderMatrixView(matrixData) {
-            const container = document.getElementById('matrixTableBody');
-            container.innerHTML = "";
-            const activeYears = Object.keys(matrixData).sort((a,b) => b-a);
-
-            if (activeYears.length === 0) {
-                container.innerHTML = `<tr><td colspan="14" class="p-3 text-slate-400 dark:text-gray-600 italic text-center">No structural matrix available.</td></tr>`;
-                return;
-            }
-
-            activeYears.forEach(year => {
-                let rowMarkup = `<tr class="table-border border-b"><td class="p-2 text-left font-black text-slate-900 dark:text-white font-mono">${year}</td>`;
-                let operationalYearTotal = 0;
-                
-                for (let m = 0; m < 12; m++) {
-                    const cell = matrixData[year][m];
-                    if (cell && cell.count > 0) {
-                        operationalYearTotal += cell.pnl;
-                        const styleClass = cell.pnl >= 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500';
-                        rowMarkup += `<td class="p-1.5 rounded ${styleClass} font-mono font-bold text-[10px]" title="${cell.count} Trades">$${cell.pnl.toFixed(0)}</td>`;
-                    } else {
-                        rowMarkup += `<td class="p-1.5 text-slate-300 dark:text-gray-700 font-mono">-</td>`;
-                    }
-                }
-                const totalStyle = operationalYearTotal >= 0 ? 'text-emerald-500 bg-emerald-500/20' : 'text-rose-500 bg-rose-500/20';
-                rowMarkup += `<td class="p-1.5 rounded font-black font-mono ${totalStyle}">$${operationalYearTotal.toFixed(0)}</td></tr>`;
-                container.innerHTML += rowMarkup;
-            });
-        }
-
-        function renderMainEquityCurve(labels, points) {
-            const canvas = document.getElementById('equityChart');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            if (eqChartInstance) { eqChartInstance.destroy(); }
-
-            const chartColor = currentTheme === 'dark' ? '#66fcf1' : '#0ea5e9';
-            const gridColor = currentTheme === 'dark' ? '#20222b' : '#e2e8f0';
-
-            eqChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Balance ($)',
-                        data: points,
-                        borderColor: chartColor,
-                        backgroundColor: 'transparent',
-                        borderWidth: 2.5,
-                        pointBackgroundColor: chartColor,
-                        pointRadius: points.length > 20 ? 1 : 3,
-                        tension: 0.15,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { color: gridColor }, ticks: { color: '#94a3b8', font: { size: 9 } } },
-                        y: { grid: { color: gridColor }, ticks: { color: '#94a3b8', font: { size: 9 } } }
-                    }
-                }
-            });
-        }
-
-        function openImageWindow(b64Data) {
-            const w = window.open();
-            w.document.write(`<body style="margin:0; background:#0b0c10; display:flex; justify-content:center; align-items:center;"><img src="${b64Data}" style="max-width:100%; max-height:100vh; box-shadow: 0 4px 20px rgba(0,0,0,0.8);" /></body>`);
-        }
-
-        function exportJSONData() {
-            if(backtestTrades.length === 0) {
-                alert("No logs available to export.");
-                return;
-            }
-            const blob = new Blob([JSON.stringify(backtestTrades, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ziyad_journal_backup_${Date.now()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function importJSONData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (Array.isArray(parsed)) {
-                        backtestTrades = parsed;
-                        localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
-                        updateDashboard();
-                        alert("Journal history imported successfully!");
-                    } else {
-                        alert("Invalid backup configuration layout.");
-                    }
-                } catch(err) {
-                    alert("Failure parsing backup profile data.");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function clearWorkspace() {
-            if (confirm("Are you completely sure you want to clear your entire trading journal history? This action cannot be undone.")) {
-                backtestTrades = [];
-                localStorage.removeItem('backtest_journal_trades');
-                
-                if (db) {
-                    const transaction = db.transaction([storeName], "readwrite");
-                    transaction.objectStore(storeName).clear();
-                }
-                updateDashboard();
-            }
-        }
-    </script>
-</body>
-</html>
+    <header class="mb-8 border-b border-slate-200 dark:border-gray-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-sky-500 dark:text-cyan-400"></i> ZIYAD FOREX TRADING JOURNAL
+            </h1>
+            <p class="text-xs text-sky-600 dark:text-cyan-400 font-mono mt-1">Workspace // Backtesting & Analytics Engine</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="toggleDisplayTheme()" class="bg-amber-500 dark:bg-indigo-600 text-white text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
+                <i id="themeIcon" class="fa-solid fa-sun"></i> <span id="themeText">Light Mode</span>
+            </button>
+            <button onclick="exportJSONData()" class="bg-slate-200 hover:bg-slate-300 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-white text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
+                <i class="fa-solid fa-download"></i> Export Backup
+            </button>
+            <label class="bg-sky-600 hover:bg-sky-500 text-white dark:text-black text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 cursor-pointer transition">
+                <i class="fa-solid fa-upload"></i> Import Backup <input type="file" id="importFile" accept=".json" onchange="importJSONData(event)" class="hidden">
+            </label>
+            <button onclick="clearWorkspace()" class="bg-rose-600/20 hover:bg-rose-600/30 dark:bg-rose-900/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
+                <i class="fa-solid fa-trash-can"></i> Clear Journal
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Summary Indicators -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net P&L</span>
+            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500">$0.00</div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Win Rate (Win %)</span>
+            <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white">0.00%</div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg Risk</span>
+            <div id="avgRisk" class="text-xl md:text-2xl font-black mt-2 text-rose-500">$0.00</div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Max Drawdown</span>
+            <div id="statDrawdown" class="text-xl md:text-2xl font-black mt-2 text-amber-500">0.00%</div>
+        </div>
+        <div class="main-card p-4 rounded-xl">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg W/L Ratio</span>
+            <div id="statAvgRatio" class="text-xl md:text-2xl font-black mt-2 text-sky-500 dark:text-cyan-400">0.00</div>
+            <div class="w-full bg-slate-200 dark:bg-rose-900/40 h-1 rounded-full mt-2 overflow-hidden flex">
+                <div id="barWinRatio" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pair-by-Pair Performance Layout (with Mini Equity Curves) -->
+    <div class="main-card p-4 rounded-xl mb-8">
+        <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group text-sky-500 dark:text-cyan-400"></i> Pair Performance & Equity Curve (Pair Metrics)
+        </h3>
+        <div id="pairPerformanceContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div class="p-3 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No trading history recorded.</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div class="main-card p-5 rounded-lg flex flex-col gap-4">
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-gray-800 pb-2">
+                <i class="fa-solid fa-pen-to-square text-sky-500 dark:text-cyan-400"></i> Log New Trade
+            </h2>
+            <form id="tradeForm" onsubmit="saveTradeLog(event)" class="flex flex-col gap-3 text-xs">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Execution Date</label>
+                        <input type="date" id="tradeDate" class="w-full p-2 rounded input-field" required>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Currency Pair</label>
+                        <select id="tradePair" class="w-full p-2 rounded input-field">
+                            <optgroup label="Forex Major Pairs">
+                                <option value="EUR/USD">EUR/USD</option>
+                                <option value="GBP/USD">GBP/USD</option>
+                            </optgroup>
+                            <optgroup label="Precious Metals & Crypto">
+                                <option value="XAU/USD">XAU/USD (Gold)</option>
+                                <option value="BTC/USD">BTC/USD (Bitcoin)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Type</label>
+                        <select id="tradeType" class="w-full p-2 rounded input-field">
+                            <option value="Buy">BUY</option>
+                            <option value="Sell">SELL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Strategy</label>
+                        <input type="text" id="tradeStrategy" placeholder="SMC/ICT" class="w-full p-2 rounded input-field" required>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Outcome</label>
+                        <select id="tradeOutcome" class="w-full p-2 rounded input-field">
+                            <option value="Win">WIN</option>
+                            <option value="Loss">LOSS</option>
+                            <option value="BE">BREAK-EVEN</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Risk ($)</label>
+                        <input type="number" step="0.01" id="tradeRisk" placeholder="e.g. 100" class="w-full p-2 rounded input-field" required>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-slate-500">Risk-to-Reward (R:R)</label>
+                        <input type="number" step="0.1" id="tradeRR" placeholder="e.g. 3.0" class="w-full p-2 rounded input-field" required>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 dark:border-gray-800 my-1 pt-2">
+                    <label class="block font-bold mb-1 text-sky-600 dark:text-cyan-400">Chart Images (Up to 5 photos - Saved in IndexedDB)</label>
+                    <div class="flex flex-col gap-1.5 mt-2 text-[11px]">
+                        <div><span class="text-slate-400 font-medium">1. Daily/HTF Bias:</span> <input type="file" id="imgSetup1" accept="image/*" class="text-slate-500 text-[10px]"></div>
+                        <div><span class="text-slate-400 font-medium">2. 4H/1H Structure:</span> <input type="file" id="imgSetup2" accept="image/*" class="text-slate-500 text-[10px]"></div>
+                        <div><span class="text-slate-400 font-medium">3. 15m/5m POI:</span> <input type="file" id="imgSetup3" accept="image/*" class="text-slate-500 text-[10px]"></div>
+                        <div><span class="text-slate-400 font-medium">4. 1m Entry Setup:</span> <input type="file" id="imgSetup4" accept="image/*" class="text-slate-500 text-[10px]"></div>
+                        <div><span class="text-slate-400 font-medium">5. Final Outcome:</span> <input type="file" id="imgSetup5" accept="image/*" class="text-slate-500 text-[10px]"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-sky-500 to-emerald-500 dark:from-cyan-500 dark:to-teal-500 text-white dark:text-black font-black uppercase tracking-wider py-2.5 rounded transition shadow-lg cursor-pointer">
+                    Add to Journal
+                </button>
+            </form>
+        </div>
+
+        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="main-card p-4 rounded-lg flex flex-col justify-between">
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-area text-sky-500 dark:text-cyan-400"></i> Equity Curve</span>
+                <div class="h-48 flex items-center justify-center relative"><canvas id="equityChart"></canvas></div>
+            </div>
+            <div class="main-card p-4 rounded-lg flex flex-col justify-between">
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block mb-2"><i class="fa-solid fa-chart-pie text-sky-500 dark:text-cyan-400"></i> Sessions Layout</span>
+                <div class="grid grid-cols-3 text-center gap-2 mt-4">
+                    <div class="p-2 rounded bg-amber-500/10 border border-amber-500/20"><div class="text-[10px] font-bold text-amber-500 uppercase">Asian</div><div id="asianLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
+                    <div class="p-2 rounded bg-blue-500/10 border border-blue-500/20"><div class="text-[10px] font-bold text-blue-500 uppercase">London</div><div id="londonLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
+                    <div class="p-2 rounded bg-purple-500/10 border border-purple-500/20"><div class="text-[10px] font-bold text-purple-500 uppercase">New York</div><div id="nyLabel" class="text-lg font-bold text-slate-900 dark:text-white mt-1">0</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-card p-4 rounded-lg mb-8">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-gray-800 pb-2 mb-3">
+            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-table-cells text-sky-500 dark:text-cyan-400"></i> Yearly / Monthly Performance Matrix
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-center text-[11px] min-w-[800px] border-separate border-spacing-1">
+                <thead>
+                    <tr class="text-slate-400 font-bold uppercase">
+                        <th class="p-1.5 text-left">Year</th>
+                        <th class="p-1.5">Jan</th><th class="p-1.5">Feb</th><th class="p-1.5">Mar</th>
+                        <th class="p-1.5">Apr</th><th class="p-1.5">May</th><th class="p-1.5">Jun</th>
+                        <th class="p-1.5">Jul</th><th class="p-1.5">Aug</th><th class="p-1.5">Sep</th>
+                        <th class="p-1.5">Oct</th><th class="p-1.5">Nov</th><th class="p-1.5">Dec</th>
+                        <th class="p-1.5 bg-slate-100 dark:bg-gray-800/60 rounded text-slate-800 dark:text-white font-bold">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="matrixTableBody" class="font-medium text-slate-700 dark:text-gray-300"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="main-card rounded-lg overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-gray-800 bg-slate-50 dark:bg-gray-900/40">
+            <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-database text-sky-500 dark:text-cyan-400"></i> Simulation History Logs
+            </h3>
+        </div>
+
+        <div class="p-3 bg-slate-100/50 dark:bg-gray-900/25 border-b border-slate-200 dark:border-gray-800 flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div class="flex flex-wrap gap-3">
+                <div class="flex items-center gap-1.5">
+                    <label class="font-bold text-slate-400">Filter by Pair:</label>
+                    <select id="filterPair" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
+                        <option value="ALL">All Pairs</option>
+                        <option value="EUR/USD">EUR/USD</option>
+                        <option value="GBP/USD">GBP/USD</option>
+                        <option value="XAU/USD">XAU/USD</option>
+                        <option value="BTC/USD">BTC/USD</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <label class="font-bold text-slate-400">Filter by Outcome:</label>
+                    <select id="filterOutcome" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
+                        <option value="ALL">All Outcomes</option>
+                        <option value="Win">WIN</option>
+                        <option value="Loss">LOSS</option>
+                        <option value="BE">BREAK-EVEN</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <label class="font-bold text-slate-400">Filter by Session:</label>
+                    <select id="filterSession" onchange="updateDashboard()" class="p-1.5 rounded input-field bg-white dark:bg-slate-900">
+                        <option value="ALL">All Sessions</option>
+                        <option value="Asian">Asian</option>
+                        <option value="London">London</option>
+                        <option value="New York">New York</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="w-full md:w-64 flex items-center relative">
+                <span class="absolute left-2.5 text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" id="searchInput" oninput="updateDashboard()" placeholder="Search strategy or keyword..." class="w-full pl-8 pr-2 py-1.5 rounded input-field bg-white dark:bg-slate-900 text-xs">
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="table-hdr font-bold border-b border-slate-200 dark:border-gray-800 uppercase text-[10px] tracking-wider">
+                        <th class="p-3">Date</th><th class="p-3">Pair</th><th class="p-3">Type</th>
+                        <th class="p-3">Session</th><th class="p-3">Strategy</th><th class="p-3">Risk ($)</th>
+                        <th class="p-3">R:R</th><th class="p-3">Net Profit ($)</th><th class="p-3">Outcome</th>
+                        <th class="p-3 text-center">Chart Layout (Hover to zoom)</th><th class="p-3 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeLogTable" class="divide-y table-border text-slate-700 dark:text-gray-300 font-medium"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const startingBalance = 10000;
+        let backtestTrades = JSON.parse(localStorage.getItem('backtest_journal_trades')) || [];
+        let eqChartInstance = null;
+        let currentTheme = localStorage.getItem('journal_display_theme') || 'dark';
+        
+        // IndexedDB Initialization
+        let db = null;
+        const dbName = "ZiyadForexImagesDB";
+        const storeName = "trade_images";
+
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = function(e) {
+            let database = e.target.result;
+            if (!database.objectStoreNames.contains(storeName)) {
+                database.createObjectStore(storeName, { keyPath: "id" });
+            }
+        };
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            updateDashboard();
+        };
+        request.onerror = function(e) {
+            console.error("IndexedDB initialization failed.");
+        };
+
+        // Apply theme properly to body tag
+        document.body.className = "p-4 md:p-8 " + currentTheme;
+        if(currentTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            syncThemeInterfaceDetails(currentTheme);
+        });
+
+        function toggleDisplayTheme() {
+            currentTheme = (currentTheme === 'dark') ? 'light' : 'dark';
+            document.body.className = "p-4 md:p-8 " + currentTheme;
+            if(currentTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            localStorage.setItem('journal_display_theme', currentTheme);
+            syncThemeInterfaceDetails(currentTheme);
+            updateDashboard();
+        }
+
+        function syncThemeInterfaceDetails(theme) {
+            const icon = document.getElementById('themeIcon');
+            const txt = document.getElementById('themeText');
+            if(theme === 'dark') {
+                icon.className = "fa-solid fa-sun";
+                txt.innerText = "Light Mode";
+            } else {
+                icon.className = "fa-solid fa-moon";
+                txt.innerText = "Dark Mode";
+            }
+        }
+
+        function getSessionByTime(dateString) {
+            if(!dateString) return 'London';
+            const dateObj = new Date(dateString);
+            const day = dateObj.getDate();
+            if (day % 3 === 0) return 'New York';
+            if (day % 3 === 1) return 'London';
+            return 'Asian';
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve) => {
+                if(!file) return resolve("");
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => resolve("");
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function saveImagesToIndexedDB(tradeId, imagesArray) {
+            if (!db) return;
+            const transaction = db.transaction([storeName], "readwrite");
+            const store = transaction.objectStore(storeName);
+            store.put({ id: tradeId, images: imagesArray });
+        }
+
+        function getImagesFromIndexedDB(tradeId) {
+            return new Promise((resolve) => {
+                if (!db) return resolve([]);
+                const transaction = db.transaction([storeName], "readonly");
+                const store = transaction.objectStore(storeName);
+                const request = store.get(tradeId);
+                request.onsuccess = () => resolve(request.result ? request.result.images : []);
+                request.onerror = () => resolve([]);
+            });
+        }
+
+        function deleteImagesFromIndexedDB(tradeId) {
+            if (!db) return;
+            const transaction = db.transaction([storeName], "readwrite");
+            const store = transaction.objectStore(storeName);
+            store.delete(tradeId);
+        }
+
+        async function saveTradeLog(e) {
+            e.preventDefault();
+            
+            const imageFiles = [
+                document.getElementById('imgSetup1').files[0],
+                document.getElementById('imgSetup2').files[0],
+                document.getElementById('imgSetup3').files[0],
+                document.getElementById('imgSetup4').files[0],
+                document.getElementById('imgSetup5').files[0]
+            ];
+            
+            const b64Images = await Promise.all(imageFiles.map(file => fileToBase64(file)));
+            const validImages = b64Images.filter(img => img !== "");
+            const tradeId = Date.now().toString();
+
+            if (validImages.length > 0) {
+                saveImagesToIndexedDB(tradeId, validImages);
+            }
+
+            const newTrade = {
+                id: tradeId,
+                Date: document.getElementById('tradeDate').value,
+                Pair: document.getElementById('tradePair').value,
+                Type: document.getElementById('tradeType').value,
+                Strategy: document.getElementById('tradeStrategy').value,
+                Outcome: document.getElementById('tradeOutcome').value,
+                Risk: parseFloat(document.getElementById('tradeRisk').value) || 0,
+                RR: parseFloat(document.getElementById('tradeRR').value) || 0,
+                Session: getSessionByTime(document.getElementById('tradeDate').value),
+                hasImages: validImages.length > 0
+            };
+
+            backtestTrades.push(newTrade);
+            localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
+            document.getElementById('tradeForm').reset();
+            updateDashboard();
+        }
+
+        function removeTradeRecord(id) {
+            if(confirm("Are you sure you want to delete this trade record?")) {
+                backtestTrades = backtestTrades.filter(t => t.id !== id);
+                localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
+                deleteImagesFromIndexedDB(id);
+                updateDashboard();
+            }
+        }
+
+        async function updateDashboard() {
+            let totalNet = 0;
+            let wins = 0, losses = 0, bes = 0;
+            let totalWinAmount = 0, totalLossAmount = 0;
+
+            let dayMapData = {};
+            let sessionCounts = { 'Asian': 0, 'London': 0, 'New York': 0 };
+            let lineLabels = ["Start"];
+            let equityPoints = [startingBalance];
+            let rollingBalance = startingBalance;
+
+            let matrixData = {};
+            let pairPerformanceMap = {};
+
+            const fPair = document.getElementById('filterPair').value;
+            const fOutcome = document.getElementById('filterOutcome').value;
+            const fSession = document.getElementById('filterSession').value;
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const filteredTrades = backtestTrades.filter(t => {
+                if (fPair !== "ALL" && t.Pair !== fPair) return false;
+                if (fOutcome !== "ALL" && t.Outcome !== fOutcome) return false;
+                if (fSession !== "ALL" && t.Session !== fSession) return false;
+                
+                if (keyword !== "") {
+                    const pairMatch = t.Pair?.toLowerCase().includes(keyword);
+                    const strategyMatch = t.Strategy?.toLowerCase().includes(keyword);
+                    const outcomeMatch = t.Outcome?.toLowerCase().includes(keyword);
+                    if (!pairMatch && !strategyMatch && !outcomeMatch) return false;
+                }
+                return true;
+            });
+
+            const chronologicalTrades = [...filteredTrades].sort((a, b) => new Date(a.Date) - new Date(b.Date));
+
+            chronologicalTrades.forEach(t => {
+                const risk = parseFloat(t.Risk) || 0;
+                const rr = parseFloat(t.RR) || 0;
+                const pair = t.Pair;
+                
+                if (t.Outcome === "Win") t.Net_Profit = parseFloat((risk * rr).toFixed(2));
+                else if (t.Outcome === "Loss") t.Net_Profit = parseFloat((-risk).toFixed(2));
+                else t.Net_Profit = 0;
+
+                totalNet += t.Net_Profit;
+                rollingBalance += t.Net_Profit;
+
+                equityPoints.push(parseFloat(rollingBalance.toFixed(2)));
+                lineLabels.push(t.Pair);
+
+                sessionCounts[t.Session] = (sessionCounts[t.Session] || 0) + 1;
+
+                if (!pairPerformanceMap[pair]) {
+                    pairPerformanceMap[pair] = { total: 0, wins: 0, pnl: 0, history: [0] };
+                }
+                pairPerformanceMap[pair].total += 1;
+                pairPerformanceMap[pair].pnl += t.Net_Profit;
+                
+                let lastPoints = pairPerformanceMap[pair].history;
+                let newPoint = lastPoints[lastPoints.length - 1] + t.Net_Profit;
+                pairPerformanceMap[pair].history.push(parseFloat(newPoint.toFixed(2)));
+
+                if (t.Outcome === "Win") {
+                    pairPerformanceMap[pair].wins += 1;
+                }
+
+                if (t.Date) {
+                    const dateParts = t.Date.split('-'); 
+                    const tYear = dateParts[0];
+                    const tMonth = parseInt(dateParts[1]) - 1; 
+                    if (!matrixData[tYear]) {
+                        matrixData[tYear] = Array(12).fill(null).map(() => ({ pnl: 0, count: 0 }));
+                    }
+                    matrixData[tYear][tMonth].pnl += t.Net_Profit;
+                    matrixData[tYear][tMonth].count += 1;
+                    dayMapData[t.Date] = (dayMapData[t.Date] || 0) + t.Net_Profit;
+                }
+
+                if (t.Outcome === "Win") { wins++; totalWinAmount += t.Net_Profit; }
+                else if (t.Outcome === "Loss") { losses++; totalLossAmount += Math.abs(t.Net_Profit); }
+                else { bes++; }
+            });
+
+            const pairContainer = document.getElementById("pairPerformanceContainer");
+            pairContainer.innerHTML = "";
+            const activePairsList = Object.keys(pairPerformanceMap);
+
+            if (activePairsList.length === 0) {
+                pairContainer.innerHTML = `<div class="p-2 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No pair summaries found.</div>`;
+            } else {
+                activePairsList.forEach(pName => {
+                    const pData = pairPerformanceMap[pName];
+                    const pWinRate = pData.total > 0 ? ((pData.wins / pData.total) * 100).toFixed(1) : "0.0";
+                    const pnlStyle = pData.pnl >= 0 ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500";
+                    const borderTheme = pData.pnl >= 0 ? "border-emerald-500/10 dark:border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/10 dark:border-rose-500/20 bg-rose-500/5";
+                    const canvasId = `chart-${pName.replace('/', '-')}`;
+
+                    pairContainer.innerHTML += `
+                        <div class="p-3 rounded-lg border ${borderTheme} flex flex-col justify-between transition-all">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-bold text-xs text-slate-900 dark:text-white">${pName}</span>
+                                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200/50 dark:bg-gray-800 text-slate-600 dark:text-gray-400">${pData.total} Trades</span>
+                                </div>
+                                <div class="flex justify-between text-[11px] mt-1">
+                                    <span class="text-slate-400 dark:text-gray-500">Win Rate</span>
+                                    <span class="font-bold text-slate-800 dark:text-gray-200">${pWinRate}%</span>
+                                </div>
+                                <div class="flex justify-between text-[11px] mt-0.5">
+                                    <span class="text-slate-400 dark:text-gray-500">Net P&L</span>
+                                    <span class="font-black ${pnlStyle}">${pData.pnl >= 0 ? '+' : ''}$${pData.pnl.toFixed(2)}</span>
+                                </div>
+                            </div>
+                            <div class="h-14 mt-2 relative w-full">
+                                <canvas id="${canvasId}"></canvas>
+                            </div>
+                        </div>
+                    `;
+
+                    setTimeout(() => {
+                        const ctx = document.getElementById(canvasId)?.
