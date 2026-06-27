@@ -60,27 +60,35 @@
         </div>
     </header>
 
-    <!-- Main Summary Indicators -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <!-- Main Summary Indicators with Capital Management -->
+    <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+        <div class="main-card p-4 rounded-xl relative overflow-hidden flex flex-col justify-between">
+            <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1">
+                    <i class="fa-solid fa-wallet text-amber-500"></i> Deposit / Starting Capital
+                </span>
+                <input type="number" id="startingBalanceInput" oninput="updateDashboard()" placeholder="e.g. 5000" class="w-full mt-2 p-1 text-sm font-bold rounded input-field font-mono" value="1000">
+            </div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Current Account Balance</span>
+            <div id="statCurrentBalance" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white font-mono">$1,000.00</div>
+        </div>
         <div class="main-card p-4 rounded-xl relative overflow-hidden">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net P&L</span>
-            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500">$0.00</div>
+            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500 font-mono">$0.00</div>
+        </div>
+        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Account Growth</span>
+            <div id="statGrowthPct" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white font-mono">0.00%</div>
         </div>
         <div class="main-card p-4 rounded-xl relative overflow-hidden">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Win Rate (Win %)</span>
-            <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white">0.00%</div>
-        </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg Risk</span>
-            <div id="avgRisk" class="text-xl md:text-2xl font-black mt-2 text-rose-500">$0.00</div>
-        </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Max Drawdown</span>
-            <div id="statDrawdown" class="text-xl md:text-2xl font-black mt-2 text-amber-500">0.00%</div>
+            <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white font-mono">0.00%</div>
         </div>
         <div class="main-card p-4 rounded-xl">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Avg W/L Ratio</span>
-            <div id="statAvgRatio" class="text-xl md:text-2xl font-black mt-2 text-sky-500 dark:text-cyan-400">0.00</div>
+            <div id="statAvgRatio" class="text-xl md:text-2xl font-black mt-2 text-sky-500 dark:text-cyan-400 font-mono">0.00</div>
             <div class="w-full bg-slate-200 dark:bg-gray-800 h-1 rounded-full mt-2 overflow-hidden flex">
                 <div id="barWinRatio" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
             </div>
@@ -289,6 +297,11 @@
         let pairChartInstances = {};
         let currentTheme = localStorage.getItem('journal_display_theme') || 'dark';
         
+        // Load initial starting balance from localStorage or default to 1000
+        if (localStorage.getItem('starting_balance') !== null) {
+            document.getElementById('startingBalanceInput').value = localStorage.getItem('starting_balance');
+        }
+
         // IndexedDB Initialization
         let db = null;
         const dbName = "ZiyadForexImagesDB";
@@ -430,15 +443,15 @@
         async function updateDashboard() {
             let totalNet = 0;
             let wins = 0, losses = 0, bes = 0;
-            let totalWinAmount = 0, totalLossAmount = 0, totalRiskAmount = 0;
+            let totalWinAmount = 0, totalLossAmount = 0;
 
             let sessionCounts = { 'Asian': 0, 'London': 0, 'New York': 0 };
-            let peakBalance = 0;
-            let maxDrawdown = 0;
-            let currentRollingBalance = 0;
-
             let matrixData = {};
             let pairPerformanceMap = {};
+
+            // Save starting balance to avoid data loss on refresh
+            const startingBalance = parseFloat(document.getElementById('startingBalanceInput').value) || 0;
+            localStorage.setItem('starting_balance', startingBalance);
 
             const fPair = document.getElementById('filterPair').value;
             const fOutcome = document.getElementById('filterOutcome').value;
@@ -465,23 +478,12 @@
                 const risk = parseFloat(t.Risk) || 0;
                 const rr = parseFloat(t.RR) || 0;
                 const pair = t.Pair;
-                
-                totalRiskAmount += risk;
 
                 if (t.Outcome === "Win") t.Net_Profit = parseFloat((risk * rr).toFixed(2));
                 else if (t.Outcome === "Loss") t.Net_Profit = parseFloat((-risk).toFixed(2));
                 else t.Net_Profit = 0;
 
                 totalNet += t.Net_Profit;
-                currentRollingBalance += t.Net_Profit;
-
-                if (currentRollingBalance > peakBalance) {
-                    peakBalance = currentRollingBalance;
-                }
-                const currentDrawdown = peakBalance > 0 ? ((peakBalance - currentRollingBalance) / peakBalance) * 100 : 0;
-                if (currentDrawdown > maxDrawdown) {
-                    maxDrawdown = currentDrawdown;
-                }
 
                 sessionCounts[t.Session] = (sessionCounts[t.Session] || 0) + 1;
 
@@ -515,19 +517,24 @@
                 else { bes++; }
             });
 
-            // Sync Indicators
+            // Financial Calculations
+            const currentAccountBalance = startingBalance + totalNet;
+            const accountGrowthPct = startingBalance > 0 ? (totalNet / startingBalance) * 100 : 0;
+
+            // Sync Balances Fields
+            document.getElementById('statCurrentBalance').innerText = '$' + currentAccountBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
             const netEl = document.getElementById('statNetPL');
             netEl.innerText = (totalNet >= 0 ? '+' : '') + '$' + totalNet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             netEl.className = `text-xl md:text-2xl font-black mt-2 ${totalNet >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
 
+            const growthEl = document.getElementById('statGrowthPct');
+            growthEl.innerText = (accountGrowthPct >= 0 ? '+' : '') + accountGrowthPct.toFixed(2) + "%";
+            growthEl.className = `text-xl md:text-2xl font-black mt-2 ${accountGrowthPct >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+
             const totalTradesCount = filteredTrades.length;
             const winRate = totalTradesCount > 0 ? ((wins / totalTradesCount) * 100).toFixed(2) : "0.00";
             document.getElementById('statWinRate').innerText = winRate + "%";
-
-            const avgRisk = totalTradesCount > 0 ? (totalRiskAmount / totalTradesCount).toFixed(2) : "0.00";
-            document.getElementById('avgRisk').innerText = "$" + parseFloat(avgRisk).toLocaleString();
-
-            document.getElementById('statDrawdown').innerText = maxDrawdown.toFixed(2) + "%";
 
             const avgWin = wins > 0 ? totalWinAmount / wins : 0;
             const avgLoss = losses > 0 ? totalLossAmount / losses : 0;
