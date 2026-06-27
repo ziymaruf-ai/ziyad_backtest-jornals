@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ziyad Forex Trading Journal</title>
+    <title>Ziyad Forex Backtesting Lab</title>
     <!-- Tailwind CSS v4 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -40,9 +40,9 @@
     <header class="mb-8 border-b border-slate-200 dark:border-gray-800 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
             <h1 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-                <i class="fa-solid fa-chart-line text-sky-500 dark:text-cyan-400"></i> ZIYAD FOREX TRADING JOURNAL
+                <i class="fa-solid fa-flask text-emerald-500 dark:text-emerald-400"></i> ZIYAD FOREX TRADING JOURNAL
             </h1>
-            <p class="text-xs text-sky-600 dark:text-cyan-400 font-mono mt-1">Workspace // Backtesting & Analytics Engine</p>
+            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-mono mt-1">Workspace // Backtesting & Simulation Engine</p>
         </div>
         <div class="flex flex-wrap gap-2">
             <button onclick="toggleDisplayTheme()" class="bg-amber-500 dark:bg-indigo-600 text-white text-xs font-bold px-3 py-2 rounded flex items-center gap-1.5 transition cursor-pointer">
@@ -60,13 +60,32 @@
         </div>
     </header>
 
-    <!-- Core Indicators Layout -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net P&L</span>
-            <div id="statNetPL" class="text-xl md:text-2xl font-black mt-2 text-emerald-500 font-mono">$0.00</div>
+    <!-- Backtesting Account Engine Configuration -->
+    <div class="main-card p-4 rounded-xl mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <div>
+            <label class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Backtest Starting Capital</label>
+            <div class="relative flex items-center">
+                <span class="absolute left-2.5 text-xs font-bold text-slate-400 font-mono">$</span>
+                <input type="number" id="startingBalanceInput" oninput="updateDashboard()" value="10000" class="w-full pl-6 pr-2 py-1.5 text-xs rounded input-field font-mono font-bold">
+            </div>
         </div>
-        <div class="main-card p-4 rounded-xl relative overflow-hidden">
+        <div class="p-2 border-l border-slate-200 dark:border-gray-800 pl-4">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Current Simulator Balance</span>
+            <div id="statCurrentBalance" class="text-lg font-black mt-1 text-slate-900 dark:text-white font-mono">$10,000.00</div>
+        </div>
+        <div class="p-2 border-l border-slate-200 dark:border-gray-800 pl-4">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Simulation P&L Growth</span>
+            <div id="statGrowthPercent" class="text-lg font-black mt-1 text-emerald-500 font-mono">+0.00%</div>
+        </div>
+        <div class="p-2 border-l border-slate-200 dark:border-gray-800 pl-4">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Net P&L Result</span>
+            <div id="statNetPL" class="text-lg font-black mt-1 text-emerald-500 font-mono">$0.00</div>
+        </div>
+    </div>
+
+    <!-- Core Indicators Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="main-card p-4 rounded-xl relative overflow-hidden flex flex-col justify-center">
             <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Win Rate (Win %)</span>
             <div id="statWinRate" class="text-xl md:text-2xl font-black mt-2 text-slate-900 dark:text-white font-mono">0.00%</div>
         </div>
@@ -79,20 +98,20 @@
         </div>
     </div>
 
-    <!-- Pair Performance Summary Header Only -->
+    <!-- Pair Performance Metrics with mini charts placeholder -->
     <div class="main-card p-4 rounded-xl mb-8">
         <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
             <i class="fa-solid fa-layer-group text-sky-500 dark:text-cyan-400"></i> Pair Performance Metrics
         </h3>
         <div id="pairPerformanceContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            <div class="p-3 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No trading history recorded.</div>
+            <div class="p-3 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No simulation history recorded.</div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <div class="main-card p-5 rounded-lg flex flex-col gap-4">
             <h2 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider border-b border-slate-100 dark:border-gray-800 pb-2">
-                <i class="fa-solid fa-pen-to-square text-sky-500 dark:text-cyan-400"></i> Log New Trade
+                <i class="fa-solid fa-pen-to-square text-sky-500 dark:text-cyan-400"></i> Log Simulation Trade
             </h2>
             <form id="tradeForm" onsubmit="saveTradeLog(event)" class="flex flex-col gap-3 text-xs">
                 <div class="grid grid-cols-2 gap-2">
@@ -276,8 +295,8 @@
     </div>
 
     <script>
-        // Separate data store key to avoid clash with the backtest journal
-        let backtestTrades = JSON.parse(localStorage.getItem('original_journal_trades')) || [];
+        // Dedicated LocalStorage key specifically for backtesting
+        let backtestTrades = JSON.parse(localStorage.getItem('backtest_journal_trades')) || [];
         let pairBarChartInstance = null;
         let currentTheme = localStorage.getItem('journal_display_theme') || 'dark';
 
@@ -405,7 +424,7 @@
             };
 
             backtestTrades.push(newTrade);
-            localStorage.setItem('original_journal_trades', JSON.stringify(backtestTrades));
+            localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
             document.getElementById('tradeForm').reset();
             updateDashboard();
         }
@@ -413,7 +432,7 @@
         function removeTradeRecord(id) {
             if(confirm("Are you sure you want to delete this trade record?")) {
                 backtestTrades = backtestTrades.filter(t => t.id !== id);
-                localStorage.setItem('original_journal_trades', JSON.stringify(backtestTrades));
+                localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
                 deleteImagesFromIndexedDB(id);
                 updateDashboard();
             }
@@ -432,6 +451,8 @@
             const fOutcome = document.getElementById('filterOutcome').value;
             const fSession = document.getElementById('filterSession').value;
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+            const startingBalance = parseFloat(document.getElementById('startingBalanceInput').value) || 0;
 
             const filteredTrades = backtestTrades.filter(t => {
                 if (fPair !== "ALL" && t.Pair !== fPair) return false;
@@ -485,9 +506,20 @@
                 else { bes++; }
             });
 
+            // Update Simulator Specific Metrics
+            const currentBalance = startingBalance + totalNet;
+            const growthPercent = startingBalance > 0 ? (totalNet / startingBalance) * 100 : 0;
+
+            const curBalEl = document.getElementById('statCurrentBalance');
+            curBalEl.innerText = '$' + currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            const growthEl = document.getElementById('statGrowthPercent');
+            growthEl.innerText = (growthPercent >= 0 ? '+' : '') + growthPercent.toFixed(2) + '%';
+            growthEl.className = `text-lg font-black mt-1 ${growthPercent >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+
             const netEl = document.getElementById('statNetPL');
             netEl.innerText = (totalNet >= 0 ? '+' : '') + '$' + totalNet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            netEl.className = `text-xl md:text-2xl font-black mt-2 ${totalNet >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
+            netEl.className = `text-lg font-black mt-1 ${totalNet >= 0 ? 'text-emerald-500' : 'text-rose-500'}`;
 
             const totalTradesCount = filteredTrades.length;
             const winRate = totalTradesCount > 0 ? ((wins / totalTradesCount) * 100).toFixed(2) : "0.00";
@@ -514,7 +546,7 @@
             const activePairsList = Object.keys(pairPerformanceMap);
 
             if (activePairsList.length === 0) {
-                pairContainer.innerHTML = `<div class="p-2 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No trading history recorded.</div>`;
+                pairContainer.innerHTML = `<div class="p-2 text-center text-slate-400 dark:text-gray-500 italic text-xs col-span-full">No simulation history recorded.</div>`;
             } else {
                 activePairsList.forEach(pName => {
                     const pData = pairPerformanceMap[pName];
@@ -527,7 +559,7 @@
                             <div>
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="font-bold text-xs text-slate-900 dark:text-white">${pName}</span>
-                                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200/50 dark:bg-gray-800 text-slate-600 dark:text-gray-400">${pData.total} Trades</span>
+                                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200/50 dark:bg-gray-800 text-slate-600 dark:text-gray-400">${pData.total} Simulation Trades</span>
                                 </div>
                                 <div class="flex justify-between text-[11px] mt-1">
                                     <span class="text-slate-400 dark:text-gray-500">Win Rate</span>
@@ -547,7 +579,7 @@
             tableBody.innerHTML = "";
             
             if (filteredTrades.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400 dark:text-gray-500 italic">No historical backup match criteria.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-slate-400 dark:text-gray-500 italic">No simulator metrics match criteria.</td></tr>`;
             } else {
                 const logDisplayOrder = [...filteredTrades].sort((a, b) => new Date(b.Date) - new Date(a.Date));
                 for (const t of logDisplayOrder) {
@@ -672,7 +704,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `ziyad_journal_backup_${Date.now()}.json`;
+            a.download = `ziyad_backtest_backup_${Date.now()}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -686,23 +718,23 @@
                     const parsed = JSON.parse(e.target.result);
                     if (Array.isArray(parsed)) {
                         backtestTrades = parsed;
-                        localStorage.setItem('original_journal_trades', JSON.stringify(backtestTrades));
+                        localStorage.setItem('backtest_journal_trades', JSON.stringify(backtestTrades));
                         updateDashboard();
-                        alert("Journal history imported successfully!");
+                        alert("Simulation logs imported successfully!");
                     } else {
-                        alert("Invalid backup configuration layout.");
+                        alert("Invalid simulator metrics profile.");
                     }
                 } catch(err) {
-                    alert("Failure parsing backup profile data.");
+                    alert("Failure parsing backup structure.");
                 }
             };
             reader.readAsText(file);
         }
 
         function clearWorkspace() {
-            if (confirm("Are you completely sure you want to clear your entire trading journal history? This action cannot be undone.")) {
+            if (confirm("Are you completely sure you want to clear your entire simulator history? This action cannot be undone.")) {
                 backtestTrades = [];
-                localStorage.removeItem('original_journal_trades');
+                localStorage.removeItem('backtest_journal_trades');
                 
                 if (db) {
                     const transaction = db.transaction([storeName], "readwrite");
